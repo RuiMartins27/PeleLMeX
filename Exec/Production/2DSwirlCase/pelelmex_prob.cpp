@@ -33,9 +33,11 @@ PeleLM::readProbParm()
   pp.query("quench_delta", PeleLM::prob_parm->quench_delta);
 
   pp.query("total_power", PeleLM::prob_parm->total_power);
+  pp.query("z_center_waveguide", PeleLM::prob_parm->z_center_waveguide);
 
   pp.query("EM_t_start", PeleLM::prob_parm->EM_t_start);
   pp.query("flag_solve_EM", PeleLM::prob_parm->flag_solve_EM);
+  pp.query("flag_optimize_reflector", PeleLM::prob_parm->flag_optimize_reflector);
   pp.query("plot_harps_int", PeleLM::prob_parm->plot_harps_int);
   pp.query("harps_verbose", PeleLM::prob_parm->harps_verbose);
   pp.query("normalize_power", PeleLM::prob_parm->normalize_power);
@@ -94,8 +96,8 @@ void ProblemSpecificFunctions::modify_ext_sources(
 
   amrex::Real total_power = prob_parm_d->total_power;
 
-  amrex::Real z_center     = 0.140;  // 7.5 cm 
-  amrex::Real z_half_width = 0.025;  // 3.0 cm (spans 5.0 cm to 10.0 cm)
+  amrex::Real z_center     = prob_parm_d->z_center_waveguide; 
+  amrex::Real z_half_width = 0.025; 
   amrex::Real r_max        = 0.008;  // 0.8 cm
 
   amrex::Real power_time   = 0.2;  //
@@ -131,7 +133,7 @@ void ProblemSpecificFunctions::modify_ext_sources(
         amrex::Real r_norm = r / r_max;
         amrex::Real z_norm = (z - z_center) / z_half_width;
 
-        ext_src_rhoh_a[box_no](i, j, k, RHOH) = P_0*(1.0 - r_norm*r_norm)*(1.0 - z_norm*z_norm)*0.99963489868;
+        ext_src_rhoh_a[box_no](i, j, k, RHOH) = P_0*(1.0 - r_norm*r_norm)*(1.0 - z_norm*z_norm)*0.99971333585;
       } else {
         ext_src_rhoh_a[box_no](i, j, k, RHOH) = 0.0; 
       }
@@ -142,6 +144,10 @@ void ProblemSpecificFunctions::modify_ext_sources(
     double L_z = 0.120;
 
     double max_power = 10e8;
+    
+    static double y_reflector = 1e6;
+    const bool optimize_reflector_enabled = (prob_parm_d->flag_optimize_reflector == 1);
+    const bool should_optimize_reflector  = optimize_reflector_enabled && (step_counter % 500 == 10) && (sdcIter == 0);
 
     double z_0 = z_center - (L_z/2 - 0.01);
 
@@ -252,7 +258,7 @@ void ProblemSpecificFunctions::modify_ext_sources(
         n_e_N2 = sqrt(n_N2_mid*pow(2*3.14159*m_e*k_B*Te_mid/h_planck/h_planck,1.5)*exp(-E_ion_N2/(k_B*Te_mid)));
         n_e_NO = sqrt(n_NO_mid*pow(2*3.14159*m_e*k_B*Te_mid/h_planck/h_planck,1.5)*exp(-E_ion_NO/(k_B*Te_mid)));
 
-        amrex::Real ne_saha = sqrt(n_e_O2*n_e_O2 + n_e_N2*n_e_N2 + n_e_NO*n_e_NO);    //*(1/(1 + pow((Te_mid/Tg_mid - 1)/(1.8 - 1), 4)));  // Non equilibrium correction factor
+        amrex::Real ne_saha = sqrt(n_e_O2*n_e_O2 + n_e_N2*n_e_N2 + n_e_NO*n_e_NO)*(1/(1 + pow((Te_mid/Tg_mid - 1)/(1.8 - 1), 4)));  // Non equilibrium correction factor
         amrex::Real ne_old = n_e_old_arr[box_no](i,j,k);
 
         amrex::Real ne_new = ne_old*pow(ne_saha / ne_old, alpha_under_relaxation); // Under relaxation
@@ -346,7 +352,9 @@ void ProblemSpecificFunctions::modify_ext_sources(
     interpolate_rz_to_yz(y, z, plasma_locations, plasma_ne, plasma_mu_re, plasma_mu_im,
                         amrex_n_e, amrex_mu_re, amrex_mu_im, Nr, Nz, prob_lo, dx, y_c, R_in, z_0);   
 
-    run_harps("input/2D_RZ.in", plasma_locations, plasma_ne, plasma_mu_re, plasma_mu_im, plasma_pabs, plasma_efield);
+    if (should_optimize_reflector) y_reflector = optimizeReflectorPosition("input/2D_RZ.in", plasma_locations, plasma_ne, plasma_mu_re, plasma_mu_im, 0.08, 0.16, plasma_pabs, plasma_efield, 12, 5e-4, prob_parm_d->harps_verbose);
+    
+    run_harps("input/2D_RZ.in", plasma_locations, plasma_ne, plasma_mu_re, plasma_mu_im, y_reflector, plasma_pabs, plasma_efield, prob_parm_d->harps_verbose);
 
     // Allocate DeviceVectors with the explicit sizes needed
     amrex::Gpu::DeviceVector<double> d_y(y.size());

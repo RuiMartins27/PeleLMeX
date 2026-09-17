@@ -27,8 +27,9 @@ void create_grid(const std::string& config_file_path, std::vector<double>& y, st
 }
 
 
-int run_harps(const std::string& config_file_path, std::vector<std::tuple<int, int, int>> plasma_locations,
-            std::vector<double> plasma_ne, std::vector<double> plasma_mu_re, std::vector<double> plasma_mu_im, std::vector<double>& plasma_pabs, std::vector<double>& plasma_E_field, int harps_verbose){
+double run_harps(const std::string& config_file_path, std::vector<std::tuple<int, int, int>> plasma_locations,
+            std::vector<double> plasma_ne, std::vector<double> plasma_mu_re, std::vector<double> plasma_mu_im, double y_reflector,
+            std::vector<double>& plasma_pabs, std::vector<double>& plasma_E_field, int harps_verbose){
     using Complex = std::complex<double>;
     const Complex zero_C(0.0, 0.0);
 
@@ -311,7 +312,7 @@ int run_harps(const std::string& config_file_path, std::vector<std::tuple<int, i
             }
         }
 
-        Grid->AddMetalPointsInVolume(systemMaxwell, b_vector, config.metalLocations, vacuum_wave_number, low_rank, high_rank);
+        Grid->AddMetalPointsInVolume(systemMaxwell, b_vector, config.metalLocations, y_reflector, low_rank, high_rank);
 
         MatAssemblyBegin(systemMaxwell, MAT_FINAL_ASSEMBLY);
         MatAssemblyEnd(systemMaxwell, MAT_FINAL_ASSEMBLY);
@@ -536,8 +537,11 @@ int run_harps(const std::string& config_file_path, std::vector<std::tuple<int, i
 
         VecDestroy(&b_vector);
         MatDestroy(&systemMaxwell);
-        
-        return  0;
+
+        double total_abs_power = 0;                                             // For Reflector optimization purposes
+        Grid->normalizeDens(absorbedPowerDensity, num_pts, total_abs_power);
+
+        return  total_abs_power;
     } catch (const std::exception& error_config) {
         std::cerr << "Error: " << error_config.what() << std::endl;
 
@@ -603,5 +607,68 @@ void interpolate_rz_to_yz(const std::vector<double>& y,const std::vector<double>
             plasma_mu_re.push_back(bilinear_interp(amrex_mu_re));
             plasma_mu_im.push_back(bilinear_interp(amrex_mu_im));
         }
+    }
+}
+
+
+double optimizeReflectorPosition(const std::string& config_file_path, const std::vector<std::tuple<int, int, int>>& plasma_locations,
+                        const std::vector<double>& plasma_ne, const std::vector<double>& plasma_mu_re, const std::vector<double>& plasma_mu_im,
+                        double y_lower, double y_upper, std::vector<double>& plasma_pabs, std::vector<double>& plasma_efield,
+                        int max_iterations, double tolerance, int harps_verbose)
+{
+    int rank;
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+    
+    const double gold = (std::sqrt(5.0) - 1.0) / 2.0; // ~0.618 = golden ratio - 1
+
+    double a = y_lower;
+    double b = y_upper;
+    double c = b - gold*(b - a);
+    double d = a + gold*(b - a);
+
+    std::vector<double> pabs_c, efield_c, pabs_d, efield_d;
+
+    double fc = run_harps(config_file_path, plasma_locations, plasma_ne, plasma_mu_re, plasma_mu_im, c, pabs_c, efield_c, 0);
+    double fd = run_harps(config_file_path, plasma_locations, plasma_ne, plasma_mu_re, plasma_mu_im, d, pabs_d, efield_d, 0);
+
+    int iter = 0;
+    while ((b - a)/std::abs(a+b) > tolerance && iter < max_iterations) {
+        if (fc > fd) {
+            // Peak lies in [a, d]; d becomes the new b
+            b = d;
+            d = c;
+            fd = fc;
+            pabs_d = pabs_c;
+            efield_d = efield_c;
+
+            c = b - gold*(b - a);
+            fc = run_harps(config_file_path, plasma_locations, plasma_ne, plasma_mu_re, plasma_mu_im, c, pabs_c, efield_c, 0);
+            if (harps_verbose > 1 && rank == 0) std::cout << "Iteration " << iter + 1 << ": c = " << c << ", power = " << fc << std::endl;
+        } else {
+            // Peak lies in [c, b]; c becomes the new a
+            a = c;
+            c = d;
+            fc = fd;
+            pabs_c = pabs_d;
+            efield_c = efield_d;
+
+            d = a + gold*(b - a);
+            fd = run_harps(config_file_path, plasma_locations, plasma_ne, plasma_mu_re, plasma_mu_im, d, pabs_d, efield_d, 0);
+            if (harps_verbose > 1 && rank == 0) std::cout << "Iteration " << iter + 1 << ": d = " << d << ", power = " << fd << std::endl;
+        }
+        ++iter;
+    }
+
+    // Return whichever of the two final interior points had higher power,
+    if (fc > fd) {
+        plasma_pabs = pabs_c;
+        plasma_efield = efield_c;
+        if (harps_verbose > 0 && rank == 0) std::cout << "Optimal reflector position: " << c << " with absorbed power: " << fc << std::endl;
+        return c;
+    } else {
+        plasma_pabs = pabs_d;
+        plasma_efield = efield_d;
+        if (harps_verbose > 0 && rank == 0) std::cout << "Optimal reflector position: " << d << " with absorbed power: " << fd << std::endl;
+        return d;
     }
 }
