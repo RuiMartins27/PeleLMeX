@@ -3,7 +3,20 @@
 #include "lut_plasma_props.h"
 
 #include <AMReX_PlotFileUtil.H>
-
+double get_real_rss_mb() {
+    std::ifstream status_file("/proc/self/status");
+    std::string line;
+    while (std::getline(status_file, line)) {
+        if (line.compare(0, 6, "VmRSS:") == 0) {
+            std::istringstream iss(line);
+            std::string key;
+            long kb;
+            iss >> key >> kb;
+            return static_cast<double>(kb) / 1024.0;
+        }
+    }
+    return 0.0;
+}
 void
 PeleLM::readProbParm()
 {
@@ -34,6 +47,7 @@ PeleLM::readProbParm()
 
   pp.query("total_power", PeleLM::prob_parm->total_power);
   pp.query("z_center_waveguide", PeleLM::prob_parm->z_center_waveguide);
+  pp.query("flag_power_shape", PeleLM::prob_parm->flag_power_shape);
 
   pp.query("EM_t_start", PeleLM::prob_parm->EM_t_start);
   pp.query("flag_solve_EM", PeleLM::prob_parm->flag_solve_EM);
@@ -109,6 +123,7 @@ void ProblemSpecificFunctions::modify_ext_sources(
   total_power *= amrex::min(1.0, time/power_time);
 
   static int step_counter = 0;
+  static int harps_counter = 0;
   if (sdcIter == 0) step_counter++;
 
   if (total_power < 1e-6) return;
@@ -119,8 +134,23 @@ void ProblemSpecificFunctions::modify_ext_sources(
     do_harps = 0;
   }
 
-  if (do_harps == 0) {
-    amrex::Real P_0 = (3.0*total_power)/(2.0*pi*r_max*r_max*z_half_width);
+  if (do_harps == 0 || harps_counter <= 10) {
+    const int power_shape = prob_parm_d->flag_power_shape;
+
+    amrex::Real P_0;
+    if (power_shape == 1) {
+      P_0 = (3.0*total_power)/(2.0*pi*r_max*r_max*z_half_width);  // Parabolic
+    } else if (power_shape == 0){
+      P_0 = total_power/(2.0*pi*r_max*r_max*z_half_width);        // Uniform
+    } else{
+      amrex::Print() << "Given static power shape ("<< power_shape << ") not implemented. Try 0 (uniform cylinder) or 1 (parabolic)" << "\n";
+    }
+
+    amrex::Real shape_corr;  // Discrete-grid correction factor
+    if(power_shape == 1)
+      shape_corr = 0.99863518459;
+    else
+      shape_corr = 0.99207486042;
 
     amrex::ParallelFor(*ext_src, [=] AMREX_GPU_DEVICE (int box_no, int i, int j, int k) noexcept{
       amrex::Real r = prob_lo[0] + (static_cast<amrex::Real>(i) + 0.5)*dx[0];
@@ -130,15 +160,21 @@ void ProblemSpecificFunctions::modify_ext_sources(
       bool inside_z = (amrex::Math::abs(z - z_center) <= z_half_width);
 
       if (inside_r && inside_z) {
-        amrex::Real r_norm = r / r_max;
-        amrex::Real z_norm = (z - z_center) / z_half_width;
-
-        ext_src_rhoh_a[box_no](i, j, k, RHOH) = P_0*(1.0 - r_norm*r_norm)*(1.0 - z_norm*z_norm)*0.99971333585;
+        amrex::Real profile = 1.0;
+        if (power_shape == 1) {
+          amrex::Real r_norm = r / r_max;
+          amrex::Real z_norm = (z - z_center) / z_half_width;
+          profile = (1.0 - r_norm*r_norm)*(1.0 - z_norm*z_norm);
+        }
+        ext_src_rhoh_a[box_no](i, j, k, RHOH) = P_0*profile*shape_corr;
       } else {
-        ext_src_rhoh_a[box_no](i, j, k, RHOH) = 0.0; 
+        ext_src_rhoh_a[box_no](i, j, k, RHOH) = 0.0;
       }
     });
-  } else if (do_harps == 1) {
+  }
+  if (do_harps == 1) {
+    harps_counter++;
+
     double y_c = 0.056;
     double R_in = 0.0135;
     double L_z = 0.120;
@@ -157,9 +193,6 @@ void ProblemSpecificFunctions::modify_ext_sources(
     std::vector<double> plasma_mu_im;
     std::vector<double> plasma_pabs;
     std::vector<double> plasma_efield;
-
-    std::vector<double> y;
-    std::vector<double> z;
 
     static std::unique_ptr<amrex::MultiFab> E_field_mf;
     static std::unique_ptr<amrex::MultiFab> E_field_new_mf;
@@ -258,7 +291,7 @@ void ProblemSpecificFunctions::modify_ext_sources(
         n_e_N2 = sqrt(n_N2_mid*pow(2*3.14159*m_e*k_B*Te_mid/h_planck/h_planck,1.5)*exp(-E_ion_N2/(k_B*Te_mid)));
         n_e_NO = sqrt(n_NO_mid*pow(2*3.14159*m_e*k_B*Te_mid/h_planck/h_planck,1.5)*exp(-E_ion_NO/(k_B*Te_mid)));
 
-        amrex::Real ne_saha = sqrt(n_e_O2*n_e_O2 + n_e_N2*n_e_N2 + n_e_NO*n_e_NO)*(1/(1 + pow((Te_mid/Tg_mid - 1)/(1.8 - 1), 4)));  // Non equilibrium correction factor
+        amrex::Real ne_saha = sqrt(n_e_O2*n_e_O2 + n_e_N2*n_e_N2 + n_e_NO*n_e_NO); //*(1/(1 + pow((Te_mid/Tg_mid - 1)/(1.8 - 1), 4)));  // Non equilibrium correction factor
         amrex::Real ne_old = n_e_old_arr[box_no](i,j,k);
 
         amrex::Real ne_new = ne_old*pow(ne_saha / ne_old, alpha_under_relaxation); // Under relaxation
@@ -347,22 +380,31 @@ void ProblemSpecificFunctions::modify_ext_sources(
       PetscInitialize(&fake_argc, &p_fake_argv, NULL, NULL);
     }
 
-    create_grid("input/2D_RZ.in", y, z);
+    static std::vector<double> y, z;
+    static bool grid_initialized = false;
+    if (!grid_initialized) {
+      create_grid("input/2D_RZ.in", y, z);
+      grid_initialized = true;
+    }
 
     interpolate_rz_to_yz(y, z, plasma_locations, plasma_ne, plasma_mu_re, plasma_mu_im,
                         amrex_n_e, amrex_mu_re, amrex_mu_im, Nr, Nz, prob_lo, dx, y_c, R_in, z_0);   
 
     if (should_optimize_reflector) y_reflector = optimizeReflectorPosition("input/2D_RZ.in", plasma_locations, plasma_ne, plasma_mu_re, plasma_mu_im, 0.08, 0.16, plasma_pabs, plasma_efield, 12, 5e-4, prob_parm_d->harps_verbose);
-    
+
     run_harps("input/2D_RZ.in", plasma_locations, plasma_ne, plasma_mu_re, plasma_mu_im, y_reflector, plasma_pabs, plasma_efield, prob_parm_d->harps_verbose);
 
     // Allocate DeviceVectors with the explicit sizes needed
-    amrex::Gpu::DeviceVector<double> d_y(y.size());
-    amrex::Gpu::DeviceVector<double> d_z(z.size());
-    amrex::Gpu::DeviceVector<double> d_pabs(plasma_pabs.size());
-    amrex::Gpu::DeviceVector<double> d_efield(plasma_efield.size());
+    static amrex::Gpu::DeviceVector<double> d_y;
+    static amrex::Gpu::DeviceVector<double> d_z;
+    static amrex::Gpu::DeviceVector<double> d_pabs;
+    static amrex::Gpu::DeviceVector<double> d_efield;
 
-    // Explicitly copy data from Host to Device
+    d_y.resize(y.size());
+    d_z.resize(z.size());
+    d_pabs.resize(plasma_pabs.size());
+    d_efield.resize(plasma_efield.size());
+
     amrex::Gpu::copy(amrex::Gpu::hostToDevice, y.begin(), y.end(), d_y.begin());
     amrex::Gpu::copy(amrex::Gpu::hostToDevice, z.begin(), z.end(), d_z.begin());
     amrex::Gpu::copy(amrex::Gpu::hostToDevice, plasma_pabs.begin(), plasma_pabs.end(), d_pabs.begin());
@@ -415,8 +457,10 @@ void ProblemSpecificFunctions::modify_ext_sources(
 
         double field_left  = sample_2d(y_left,  z_target, field_ptr);
         double field_right = sample_2d(y_right, z_target, field_ptr);
-
-        ext_src_rhoh_a[box_no](i, j, k, RHOH) = 0.5*(pabs_left + pabs_right);
+        
+        if(harps_counter > 10){
+          ext_src_rhoh_a[box_no](i, j, k, RHOH) = 0.5*(pabs_left + pabs_right);
+        }
         E_field_raw_a[box_no](i, j, k)        = 0.5*(field_left + field_right);
       } else {
         ext_src_rhoh_a[box_no](i, j, k, RHOH) = 0.0; 

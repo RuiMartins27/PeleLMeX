@@ -366,7 +366,7 @@ double run_harps(const std::string& config_file_path, std::vector<std::tuple<int
         MPI_Barrier(MPI_COMM_WORLD);
         if(config.printProgress  && rank == 0) std::cout << "Creating Sequential Vector" << std::endl;
 
-                Vec x_seq = NULL; 
+        Vec x_seq = NULL; 
         VecScatter scatter;
 
         VecScatterCreateToAll(solution, &scatter, &x_seq);
@@ -397,6 +397,7 @@ double run_harps(const std::string& config_file_path, std::vector<std::tuple<int
         }
         VecScatterDestroy(&scatter);
         VecDestroy(&x_seq);
+        PetscMallocClear();
 
         if(config.printProgress  && rank == 0) std::cout << "Calculating Absorbed Power" << std::endl;
         
@@ -539,7 +540,10 @@ double run_harps(const std::string& config_file_path, std::vector<std::tuple<int
         MatDestroy(&systemMaxwell);
 
         double total_abs_power = 0;                                             // For Reflector optimization purposes
-        Grid->normalizeDens(absorbedPowerDensity, num_pts, total_abs_power);
+        double* normalizedDensity;
+        normalizedDensity = Grid->normalizeDens(absorbedPowerDensity, num_pts, total_abs_power);
+        delete[] absorbedPowerDensity;  // Solves memory leak
+        delete[] normalizedDensity;
 
         return  total_abs_power;
     } catch (const std::exception& error_config) {

@@ -41,12 +41,13 @@ struct MyProbParm : public ProbParmDefault
   amrex::Real solidBody = 0.01;
 
   amrex::Real total_power = 0.0;
-  amrex::Real z_center_waveguide = 0.13;
+  amrex::Real z_center_waveguide = 0.14;
 
   amrex::Real EM_t_start = 0.15;
   int plot_harps_int = 100;
   int harps_verbose = 1;
   bool flag_solve_EM = false;
+  int flag_power_shape = 1;
   bool flag_optimize_reflector = false;
   bool normalize_power = true;
   amrex::GpuArray<char, 64> plot_harps_file = {"plt_harps"};

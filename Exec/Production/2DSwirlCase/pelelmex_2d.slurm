@@ -2,8 +2,8 @@
 #SBATCH --job-name=N2_10slm_600W
 #SBATCH --output=%x-%j.out
 #SBATCH --error=%x-%j.err
-#SBATCH --ntasks=4
-#SBATCH --time=48:00:00
+#SBATCH --ntasks=16
+#SBATCH --time=72:00:00
 
 # Load/activate whatever environment you normally use here.
 source ~/spack/share/spack/setup-env.sh
@@ -13,6 +13,6 @@ spack load openmpi %gcc@12.2.0
 export LD_LIBRARY_PATH=$(spack location -i petsc)/lib:$LD_LIBRARY_PATH
 
 # Run the code
-mpirun -np 4 ./PeleLMeX2d.gnu.MPI.AXISWIRL.ex \
+mpirun -np 16 ./PeleLMeX2d.gnu.MPI.AXISWIRL.ex \
                 input.2d-regt
 

@@ -2,7 +2,7 @@
 geometry.is_periodic = 0 0 1                    # For each dir, 0: non-perio, 1: periodic
 geometry.coord_sys   = 1                        # 0 => cart, 1 => RZ
 geometry.prob_lo     = 0.0   0.0   0.0          # x_lo y_lo (z_lo)
-geometry.prob_hi     = 0.013 0.312 0.001625     # x_hi y_hi (z_hi)    0.013 0.312 0.001625
+geometry.prob_hi     = 0.0135 0.324 0.001625     # x_hi y_hi (z_hi)    0.0135 0.312 0.001625
 
 # >>>>>>>>>>>>>  BC FLAGS <<<<<<<<<<<<<<<<
 # Interior, Inflow, Outflow, Symmetry,
@@ -30,15 +30,15 @@ prob.uz = 0.00                      # Axial injection not used for now
 prob.inlet_center = 0.010
 prob.inlet_delta  = 0.019
 
-prob.ur         = -1.81             # Main Tangential injection
+prob.ur         = -1.679            # Main Tangential injection
 prob.utheta     = 7.75              # 7.75
-prob.main_center    = 0.06
+prob.main_center    = 0.063
 prob.main_delta     = 0.001
 prob.x_O2_main      = 0.00   # 0.00
 
 prob.quench_flag    = 0             # Quench Radial Injection
 prob.ur_quench      = -1.81 
-prob.quench_center  = 0.192
+prob.quench_center  = 0.1981
 prob.quench_delta   = 0.001
 prob.x_O2_quench    = 1.00
 
@@ -47,12 +47,12 @@ prob.sponge_zstart  = 0.27
 prob.sponge_zend    = 0.32
 
 prob.total_power = 600              # Power Input
-prob.z_center_waveguide = 0.13
+prob.z_center_waveguide = 0.1465
 
 prob.flag_solve_EM      = 1         # Flag for calling Harps
 prob.normalize_power    = 1
 prob.EM_t_start         = 0.15
-prob.plot_harps_file    = "plt_harps_N2_600W_"
+prob.plot_harps_file    = "plt_harps_N2_10slm_600W_"
 prob.plot_harps_int     = 500
 prob.harps_verbose      = 1
 prob.flag_optimize_reflector    = 1     # Flag for optimizing reflector position
@@ -60,12 +60,12 @@ prob.flag_optimize_reflector    = 1     # Flag for optimizing reflector position
 #-------------------------PeleLM CONTROL----------------------------
 peleLM.v = 1
 
-#amr.restart   = chk_N2_10slm09000
-amr.max_step  = 50000
-amr.stop_time = 0.6
+amr.restart   = chk_N2_600W_46000
+amr.max_step  = 150000
+amr.stop_time = 0.75
 
-amr.plot_file   = "plt_N2_600W_no_harps_"
-amr.check_file  = "chk_N2_600W_no_harps_"
+amr.plot_file   = "plt_N2_10slm_600W_"
+amr.check_file  = "chk_N2_10slm_600W_"
 amr.check_int   = 1000
 amr.plot_int    = 500
 
