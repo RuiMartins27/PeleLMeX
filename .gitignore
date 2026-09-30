@@ -25,7 +25,16 @@ Exec/**/*.cproject
 Exec/**/*.project
 
 # Others
-Utils/Plots
 Exec/Production/2DSwirlCase/*.txt
+Exec/Production/2DSwirlCase/*.err
+Exec/Production/2DSwirlCase/*.out
 Exec/RegTests/HotBubble/*.dat
 Exec/Production/2DSwirlCase/cfd
+
+*.slurm
+*.png
+*.pdf
+*.npz
+*.gif
+Exec/Production/2DSwirlCase/input.2d-run*
+
