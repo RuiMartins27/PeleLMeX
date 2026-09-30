@@ -37,7 +37,7 @@ Transport_Model = Simple
 PELE_HOME ?= ../../..
 
 # HARPS - MW EFIELD SOLVER
-HARPS_SRC_DIR = ../../../../power_coupling/harps/src
+HARPS_SRC_DIR = ../../../../harps/src
 
 CEXE_sources += harps.cpp
 

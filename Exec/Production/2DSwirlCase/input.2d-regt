@@ -30,8 +30,8 @@ prob.uz = 0.00                      # Axial injection not used for now
 prob.inlet_center = 0.010
 prob.inlet_delta  = 0.019
 
-prob.ur         = -1.679            # Main Tangential injection
-prob.utheta     = 7.75              # 7.75
+prob.ur         = -1.679            # Main Tangential injection     (-1.679 is 10 slm in current setup)
+prob.utheta     = 7.75              #                               (7.75 is 10 slm in current setup)
 prob.main_center    = 0.063
 prob.main_delta     = 0.001
 prob.x_O2_main      = 0.00   # 0.00
@@ -48,6 +48,7 @@ prob.sponge_zend    = 0.32
 
 prob.total_power = 600              # Power Input
 prob.z_center_waveguide = 0.1465
+prob.flag_power_shape   = 1         # Static Power Shape (0: uniform cylinder;  1: parabolic)
 
 prob.flag_solve_EM      = 1         # Flag for calling Harps
 prob.normalize_power    = 1
@@ -60,7 +61,7 @@ prob.flag_optimize_reflector    = 1     # Flag for optimizing reflector position
 #-------------------------PeleLM CONTROL----------------------------
 peleLM.v = 1
 
-amr.restart   = chk_N2_600W_46000
+#amr.restart   = chk_N2_600W_46000
 amr.max_step  = 150000
 amr.stop_time = 0.75
 
@@ -106,31 +107,6 @@ ode.clean_init_massfrac = 1
 cvode.solve_type = dense_direct       # CVODE Linear solve type (for Newton direction) 
 cvode.max_order  = 4                  # CVODE max BDF order. 
 
-
-#--------------------EFIELD CONTROL------------------------
-#ef.phiV_lo_bc = Interior Dirichlet
-#ef.phiV_hi_bc = Interior Dirichlet
-#ef.phiV_polarity_lo = Neutral Cathode
-#ef.phiV_polarity_hi = Neutral Anode
-#ef.GMRES_rel_tol  = 1.0e-6
-#ef.GMRES_abs_tol  = 1.0e-13
-#ef.JFNK_lambda = 1.0e-7
-##ef.JFNK_diffType = 1 
-##ef.JFNK_maxNewton = 10
-#ef.PC_approx = 2 
-##ef.PC_damping = 0.8
-#ef.advection_scheme_order = 1
-#ef.precond.diff_verbose = 0
-#ef.precond.Stilda_verbose = 0 
-#ef.precond.fixedIter = 10
-##ef.precond.max_coarsening_level = 2
-##ef.precond.num_pre_smooth = 4
-##ef.precond.num_post_smooth = 4
-#ef.tabulated_Ke = 0
-#ef.fixed_Ke = 0.4
-#gmres.krylovBasis_size = 20
-#gmres.verbose  = 0
-#gmres.max_restart = 3 
 
 #--------------------REFINEMENT CONTROL------------------------
 #amr.refinement_indicators = temp
