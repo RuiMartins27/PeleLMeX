@@ -7,7 +7,7 @@
 #include "harps.h"
 #include <PeleLMeX.H>
 
-std::string harps_dir = "../../../../power_coupling/harps/";    // Path to the harps directory if I'm running from harps or 1d_fluid if it's next to harps
+std::string harps_dir = "../../../../harps/";    // Path to the harps directory if I'm running from harps or 1d_fluid if it's next to harps
 
 
 void create_grid(const std::string& config_file_path, std::vector<double>& y, std::vector<double>& z){
