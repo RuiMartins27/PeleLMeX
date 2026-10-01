@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=N2_10slm_600W
+#SBATCH --job-name=N2_10slm_600W_corr
 #SBATCH --output=%x-%j.out
 #SBATCH --error=%x-%j.err
 #SBATCH --ntasks=8

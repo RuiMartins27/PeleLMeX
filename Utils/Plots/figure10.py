@@ -7,7 +7,7 @@ from matplotlib.lines import Line2D
 data_dir = "../../Exec/Production/2DSwirlCase"
 cases = [
     {"label": "5 slm",  "prefix": "plt_N2_5slm_600W_",  "start": 64500, "stride": 500, "n": 20},
-    {"label": "10 slm", "prefix": "plt_N2_10slm_600W_", "start": 66500, "stride": 500, "n": 20},
+    {"label": "10 slm", "prefix": "plt_N2_10slm_600W_corr_", "start": 12500, "stride": 500, "n": 2},
     {"label": "20 slm", "prefix": "plt_N2_20slm_600W_", "start": 71000, "stride": 500, "n": 21},
 ]
 

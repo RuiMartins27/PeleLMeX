@@ -6,9 +6,9 @@ import matplotlib.pyplot as plt
 import yt
 
 base_dir = "../../Exec/Production/2DSwirlCase"
-file_prefix = "plt_N2_10slm_600W_"
-use_all_plt = True
-base_step = 66500
+file_prefix = "plt_N2_10slm_600W_corr_"
+use_all_plt = False
+base_step = 12500
 step_size = 500
 n_folders = 200
 

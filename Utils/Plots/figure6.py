@@ -7,12 +7,12 @@ import matplotlib.pyplot as plt
 from matplotlib.ticker import ScalarFormatter, MaxNLocator, MultipleLocator
 
 data_dir     = "../../Exec/Production/2DSwirlCase"
-cfd_prefix   = "plt_N2_10slm_600W_"
-harps_prefix = "plt_harps_N2_10slm_600W_"
+cfd_prefix   = "plt_N2_10slm_600W_corr_"
+harps_prefix = "plt_harps_N2_10slm_600W_corr_"
 
-start_step  = 66500
+start_step  = 12500
 step_stride = 500
-n_datasets  = 20
+n_datasets  = 3
 
 use_cache = True
 out_pdf   = "figure6_ss_panel.pdf"
@@ -168,5 +168,5 @@ y_mid = (bottom_in + 0.5 * (n * panel_h + (n - 1) * gap_in)) / fig_h
 fig.text(0.04, y_mid, r"$r\ (\mathrm{cm})$", va="center", ha="center", rotation="vertical")
 
 fig.savefig(out_pdf, format="pdf")
-fig.savefig(out_png, format="png")
+fig.savefig(out_png, dpi=900, format="png")
 print(f"Saved: {out_pdf}")
