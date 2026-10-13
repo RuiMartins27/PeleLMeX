@@ -8,14 +8,14 @@ import yt
 base_dir = "../../Exec/Production/2DSwirlCase"
 file_prefix = "plt_N2_10slm_600W_corr_"
 use_all_plt = False
-base_step = 12500
+base_step = 52000
 step_size = 500
 n_folders = 200
 
 r_probe = 0.000
 z_probe = None
-z_min = 0.10
-z_max = 0.20
+z_min = 0.14
+z_max = 0.16
 n_z_points = 100
 
 quantities = [

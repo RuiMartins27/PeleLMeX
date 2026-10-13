@@ -3,10 +3,10 @@ import yt
 import numpy as np
 
 data_dir     = "../../Exec/Production/2DSwirlCase"
-cfd_prefix   = "plt_N2_10slm_1250W_cylinder_"
-harps_prefix = "plt_N2_10slm_1000W_static_not_used"
+cfd_prefix   = "plt_N2_10slm_600W_"
+harps_prefix = "plt_N2_10slm_600W_"
 
-start_step  = 95231     # last 
+start_step  = 60000     # last 
 step_stride = 500     # go backwards in steps of this size
 n_datasets  = 3
 

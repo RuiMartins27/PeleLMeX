@@ -10,9 +10,9 @@ data_dir     = "../../Exec/Production/2DSwirlCase"
 cfd_prefix   = "plt_N2_10slm_600W_corr_"
 harps_prefix = "plt_harps_N2_10slm_600W_corr_"
 
-start_step  = 12500
+start_step  = 72000
 step_stride = 500
-n_datasets  = 3
+n_datasets  = 20
 
 use_cache = True
 out_pdf   = "figure6_ss_panel.pdf"

@@ -7,7 +7,7 @@ from matplotlib.lines import Line2D
 data_dir = "../../Exec/Production/2DSwirlCase"
 cases = [
     {"label": "5 slm",  "prefix": "plt_N2_5slm_600W_",  "start": 64500, "stride": 500, "n": 20},
-    {"label": "10 slm", "prefix": "plt_N2_10slm_600W_corr_", "start": 12500, "stride": 500, "n": 2},
+    {"label": "10 slm", "prefix": "plt_N2_10slm_600W_corr_", "start": 14000, "stride": 500, "n": 2},
     {"label": "20 slm", "prefix": "plt_N2_20slm_600W_", "start": 71000, "stride": 500, "n": 21},
 ]
 
@@ -132,6 +132,11 @@ ax1_r.grid(True, ls="--", alpha=0.4)
 ax2_t.set_xlabel(r"$z\ [\mathrm{cm}]$")
 ax2_t.set_ylabel(r"$T_g\ [\mathrm{K}]$")
 ax2_u.set_ylabel(r"$u_z\ [\mathrm{m/s}]$")
+ax2.set_yscale("log")
+ax2.set_ylim(2, 200)            # remove any ax2.set_ylim(bottom=0): zero is invalid on a log axis
+ax2.yaxis.set_major_locator(FixedLocator([2, 5, 10, 20, 50, 100, 200]))
+ax2.yaxis.set_major_formatter(ScalarFormatter())   # plain numbers instead of 10^x
+ax2.yaxis.set_minor_locator(NullLocator())
 ax2_u.axhline(0.0, color="k", lw=0.6, alpha=0.4)
 ax2_t.set_xlim(z_min, z_max)
 ax2_t.grid(True, ls="--", alpha=0.4)

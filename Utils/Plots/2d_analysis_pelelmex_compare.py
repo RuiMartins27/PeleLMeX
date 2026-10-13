@@ -7,14 +7,14 @@ import yt
 # 1. Configuration
 base_dir = "../../Exec/Production/2DSwirlCase"
 
-series1_config = {"base": "plt_harps_N2_600W_", "start": 50000, "step": -500}
-series2_config = {"base": "plt_harps_N2_1000W_", "start": 38000, "step": -500}
+series1_config = {"base": "plt_no_sponge_", "start": 43000, "step": -1000}
+series2_config = {"base": "plt_sponge_", "start": 43000, "step": -1000}
 
-base_name = "600W"
-other_name = "1000W"
+base_name = "No Sponge"
+other_name = "Sponge"
 
 # Set to 0 or 1 for single-file comparison)
-N_FILES = 20
+N_FILES = 10
 
 EPSILON = 1e-12
 slice_axis = "theta"
@@ -37,8 +37,8 @@ plt.rcParams.update({
     "font.size": 11,
     "axes.titlesize": 12,
     "axes.labelsize": 11,
-    "xtick.labelsize": 10,
-    "ytick.labelsize": 10,
+    "xtick.labelsize": 11,
+    "ytick.labelsize": 11,
     "figure.titlesize": 13
 })
 
