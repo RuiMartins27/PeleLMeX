@@ -101,7 +101,7 @@ for num in full_sequence:
 print("\n=== Generating GIFs ===")
 for quantity, frame_list in frames.items():
     if frame_list:
-        gif_name = f'2d_{quantity}_evolution.gif'
+        gif_name = f'analysis_outputs/2d_{quantity}_evolution.gif'
         imageio.mimsave(gif_name, frame_list, duration=100, loop=0)
         print(f"Success: {gif_name}")
     else:

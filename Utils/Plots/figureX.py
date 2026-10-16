@@ -197,8 +197,8 @@ ax.legend(
     framealpha=0.9, fontsize=12, title="Power Profiles"
 )
 fig.tight_layout(rect=[0, 0, 1, 0.94])
-fig.savefig("figure_n_atoms_power.png", dpi=300, bbox_inches="tight")
-fig.savefig("figure_n_atoms_power.pdf", bbox_inches="tight")
+fig.savefig("analysis_outputs/figure_n_atoms_power.png", dpi=300, bbox_inches="tight")
+fig.savefig("analysis_outputs/figure_n_atoms_power.pdf", bbox_inches="tight")
 plt.close(fig)
 
 # ===================================================== Figure 2: inlet flow rate
@@ -230,8 +230,8 @@ ax.spines["left"].set_color(BLUE); ax2.spines["right"].set_color(RED)
 ax.spines["right"].set_visible(False)
 ax.grid(True, alpha=0.25, linestyle=":"); ax.margins(x=0.08)
 fig.tight_layout()
-fig.savefig("figure_n_atoms_flow.png", dpi=300, bbox_inches="tight")
-fig.savefig("figure_n_atoms_flow.pdf", bbox_inches="tight")
+fig.savefig("analysis_outputs/figure_n_atoms_flow.png", dpi=300, bbox_inches="tight")
+fig.savefig("analysis_outputs/figure_n_atoms_flow.pdf", bbox_inches="tight")
 plt.close(fig)
 
 # Figure 3: z-profile, 600 / 1000 / 1500 W with extended lighter grey shading
@@ -285,8 +285,8 @@ ax.legend(
     framealpha=0.9, fontsize=12, title="Input Power"
 )
 fig.tight_layout()
-fig.savefig("figure_n_atoms_z_profile.png", dpi=300, bbox_inches="tight")
-fig.savefig("figure_n_atoms_z_profile.pdf", bbox_inches="tight")
+fig.savefig("analysis_outputs/figure_n_atoms_z_profile.png", dpi=300, bbox_inches="tight")
+fig.savefig("analysis_outputs/figure_n_atoms_z_profile.pdf", bbox_inches="tight")
 plt.close(fig)
 
 
@@ -334,6 +334,6 @@ ax.legend(
     framealpha=0.9, fontsize=12, title="Inlet Flow Rate"
 )
 fig.tight_layout()
-fig.savefig("figure_n_atoms_z_profile_flow.png", dpi=300, bbox_inches="tight")
-fig.savefig("figure_n_atoms_z_profile_flow.pdf", bbox_inches="tight")
+fig.savefig("analysis_outputs/figure_n_atoms_z_profile_flow.png", dpi=300, bbox_inches="tight")
+fig.savefig("analysis_outputs/figure_n_atoms_z_profile_flow.pdf", bbox_inches="tight")
 plt.close(fig)

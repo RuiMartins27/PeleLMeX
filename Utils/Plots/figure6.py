@@ -15,8 +15,8 @@ step_stride = 500
 n_datasets  = 20
 
 use_cache = True
-out_pdf   = "figure6_ss_panel.pdf"
-out_png   = "figure6_ss_panel.png"
+out_pdf   = "analysis_outputs/figure6_ss_panel.pdf"
+out_png   = "analysis_outputs/figure6_ss_panel.png"
 
 steps = [start_step - i * step_stride for i in range(n_datasets)]
 

@@ -194,7 +194,7 @@ for quantity, settings in plots_config.items():
     fig.suptitle(f"Averaged Comparison ({num_str}): {quantity}", y=0.98, fontweight="bold")
     plt.tight_layout()
 
-    output_filename = f"diff_avg_{quantity}.png"
+    output_filename = f"analysis_outputs/diff_avg_{quantity}.png"
     plt.savefig(output_filename, dpi=300, bbox_inches="tight")
     plt.close(fig)
     print(f"Saved plot as: {output_filename}")

@@ -118,7 +118,7 @@ for q in quantities_to_process:
         z_key = f"{z0:.3f}"
         output_data_2d[f"r_{z_key}"] = r_target
         output_data_2d[f"{q}_{z_key}"] = accumulators[q][z0] / successful_files
-np.savez_compressed("profile_data_2d.npz", **output_data_2d)
+np.savez_compressed("analysis_outputs/profile_data_2d.npz", **output_data_2d)
 print("Saved 2D profile data to 'profile_data_2d.npz'")
 
 if plot_rz_map:
@@ -134,9 +134,9 @@ if plot_rz_map:
         ax.set_xlabel("Radius $r$ (m)", fontsize=12, family="serif")
         ax.set_ylabel("z (m)", fontsize=12, family="serif")
         ax.set_title(f"Time-Averaged {q} R-Z Map", fontsize=13, family="serif", weight="bold")
-        out_file = f"rz_map_{q}.png"
+        out_file = f"analysis_outputs/rz_map_{q}.png"
         #fig.savefig(out_file, dpi=300, bbox_inches="tight")
         #print(f"Saved {out_file}")
         plt.close(fig)
-    np.savez_compressed("rz_map_data.npz", **rz_output_data)
+    np.savez_compressed("analysis_outputs/rz_map_data.npz", **rz_output_data)
     print("Saved 2D R-Z map data to 'rz_map_data.npz'")

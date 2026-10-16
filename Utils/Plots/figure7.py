@@ -65,7 +65,7 @@ for col, (kind, field, cmap, label) in enumerate(panels):
         fig.colorbar(im, cax=make_axes_locatable(ax).append_axes("right", size="5%", pad=0.08)).ax.tick_params(labelsize=13)
 
 plt.tight_layout(pad=1.2)
-out_name = "figure7_power_diff_1row" if SINGLE_ROW else "figure7_power_diff"
+out_name = "analysis_outputs/figure7_power_diff_1row" if SINGLE_ROW else "figure7_power_diff"
 plt.savefig(f"{out_name}.pdf", dpi=300, bbox_inches="tight")
 plt.savefig(f"{out_name}.png", dpi=300, bbox_inches="tight")
 plt.close(fig); print(f"Saved {out_name}.pdf")

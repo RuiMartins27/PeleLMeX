@@ -117,8 +117,8 @@ def plot_comparison(diff_dict, is_relative, filename_base):
                 cbar.set_label(f"$\\Delta {sym}$", rotation=270, labelpad=12)
 
     plt.tight_layout()
-    plt.savefig(f"{filename_base}.png", dpi=300, bbox_inches="tight")
-    plt.savefig(f"{filename_base}.pdf", bbox_inches="tight")
+    plt.savefig(f"analysis_outputs/{filename_base}.png", dpi=300, bbox_inches="tight")
+    plt.savefig(f"analysis_outputs/{filename_base}.pdf", bbox_inches="tight")
     plt.close(fig)
 
 plot_comparison(abs_diffs, False, "sponge_comparison_absolute")

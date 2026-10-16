@@ -162,5 +162,5 @@ fig.legend(
 )
 
 plt.tight_layout()
-plt.savefig("figure8_metrics.pdf", bbox_inches="tight")
-plt.savefig("figure8_metrics.png", dpi=300, bbox_inches="tight")
+plt.savefig("analysis_outputs/figure8_metrics.pdf", bbox_inches="tight")
+plt.savefig("analysis_outputs/figure8_metrics.png", dpi=300, bbox_inches="tight")

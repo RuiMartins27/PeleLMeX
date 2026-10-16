@@ -130,7 +130,7 @@ plt.axhline(0, color='black', linewidth=0.8, alpha=0.3)
 plt.xlim(common_z[0], common_z[-1])
 plt.legend(frameon=True, loc='best')
 plt.tight_layout()
-plt.savefig("2d_ensemble_flow.png", dpi=300)
+plt.savefig("analysis_outputs/2d_ensemble_flow.png", dpi=300)
 
 # --- 5. Summary Statistics ---
 print("\n" + "=" * 35)

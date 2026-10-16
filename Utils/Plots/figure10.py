@@ -97,8 +97,8 @@ axT2.set_xlim(0, r_max)
 axT2.grid(True, ls="--", alpha=0.4)
 twin_legend(axT2, r"$T_g$ (left)", r"$p_\mathrm{abs}$ (right)")
 fig1.tight_layout()
-fig1.savefig("figure10_a_flow_rate.png", dpi=300, bbox_inches="tight")
-fig1.savefig("figure10_a_flow_rate.pdf", bbox_inches="tight")
+fig1.savefig("analysis_outputs/figure10_a_flow_rate.png", dpi=300, bbox_inches="tight")
+fig1.savefig("analysis_outputs/figure10_a_flow_rate.pdf", bbox_inches="tight")
 
 fig2, axT = plt.subplots(figsize=(6.5, 4.2))
 axU = axT.twinx()
@@ -113,8 +113,8 @@ axT.set_xlim(z_min, z_max)
 axT.grid(True, ls="--", alpha=0.4)
 twin_legend(axT, r"$T_g$ (left)", r"$u_z$ (right)")
 fig2.tight_layout()
-fig2.savefig("figure10_b_flow_rate.png", dpi=300, bbox_inches="tight")
-fig2.savefig("figure10_b_flow_rate.pdf", bbox_inches="tight")
+fig2.savefig("analysis_outputs/figure10_b_flow_rate.png", dpi=300, bbox_inches="tight")
+fig2.savefig("analysis_outputs/figure10_b_flow_rate.pdf", bbox_inches="tight")
 
 fig3, (ax1_r, ax2_t) = plt.subplots(1, 2, figsize=(11.0, 4.2))
 ax1_p = ax1_r.twinx()
@@ -139,8 +139,8 @@ handles = [Line2D([0], [0], color=col, lw=2, label=res["label"]) for res, col in
 handles += [Line2D([0], [0], color="k", lw=2, ls="-", label=r"$T_g$"), Line2D([0], [0], color="k", lw=2, ls="--", label=r"$p_\mathrm{abs}$ or $u_z$")]
 fig3.legend(handles=handles, loc="upper center", bbox_to_anchor=(0.5, 1.07), ncol=len(handles), framealpha=0.85, fontsize=font_size - 1)
 fig3.tight_layout()
-fig3.savefig("figure10_combined.png", dpi=300, bbox_inches="tight")
-fig3.savefig("figure10_combined.pdf", bbox_inches="tight")
+fig3.savefig("analysis_outputs/figure10_combined.png", dpi=300, bbox_inches="tight")
+fig3.savefig("analysis_outputs/figure10_combined.pdf", bbox_inches="tight")
 
 out = {"z_axis": z_axis, "r_target": r_target, "z_radial": np.array(z_radial)}
 for res in results:
@@ -150,5 +150,5 @@ for res in results:
     for zr in z_radial:
         out[f"T_rad_{tag}_z{zr:.3f}"] = res["T_rad"][zr]
         out[f"pabs_rad_{tag}_z{zr:.3f}"] = res["p_rad"][zr]
-np.savez_compressed("flow_rate_profiles.npz", **out)
+np.savez_compressed("analysis_outputs/flow_rate_profiles.npz", **out)
 print("Saved flow_rate_profiles.npz")

@@ -143,7 +143,7 @@ for q in quantities_to_process:
     ax.tick_params(axis="both", labelsize=11)
     ax.set_xlim(z_min, z_max)
 
-    out_file = f"1d_axial_{q}.png"
+    out_file = f"analysis_outputs/1d_axial_{q}.png"
     fig.savefig(out_file, dpi=300, bbox_inches="tight")
     print(f"Saved {out_file}")
     plt.close(fig)

@@ -36,5 +36,7 @@ Exec/Production/2DSwirlCase/cfd
 *.pdf
 *.npz
 *.gif
+*.out
+*.err
 Exec/Production/2DSwirlCase/input.2d-run*
 

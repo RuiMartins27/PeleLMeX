@@ -109,7 +109,7 @@ probe_desc = f"r={r_probe}, z={z_probe} m" if z_probe is not None else f"r={r_pr
 ax1.set_title(f"Temperature & Axial Velocity vs. Time ({probe_desc})", fontsize=13, pad=10)
 
 fig.tight_layout()
-fig.savefig("time_temp_vel.pdf", bbox_inches="tight")
-fig.savefig("time_temp_vel.png", dpi=600, bbox_inches="tight")
+fig.savefig("analysis_outputs/time_temp_vel.pdf", bbox_inches="tight")
+fig.savefig("analysis_outputs/time_temp_vel.png", dpi=600, bbox_inches="tight")
 print("Saved time_temp_vel.pdf and time_temp_vel.png (600 DPI)")
 plt.close(fig)

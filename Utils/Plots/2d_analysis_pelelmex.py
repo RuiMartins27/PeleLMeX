@@ -156,7 +156,7 @@ def generate_slice_plots(ds, config, prefix):
         slc.set_cmap(quantity, cmap)
         slc.set_font({"size": 12, "family": "serif"})
 
-        out_name = f"2d_{prefix}_{quantity}.png"
+        out_name = f"analysis_outputs/2d_{prefix}_{quantity}.png"
         slc.save(out_name, mpl_kwargs={"bbox_inches": "tight", "pad_inches": 0.05})
         print(f"Saved: {out_name}")
 

@@ -1,0 +1,239 @@
+# ----------------------DOMAIN DEFINITION------------------------
+geometry.is_periodic = 0 0 0                 # For each dir, 0: non-perio, 1: periodic
+geometry.coord_sys   = 0                     # 0 => cart, 1 => RZ
+geometry.prob_lo     = -0.014 -0.014 -0.028  # x_lo y_lo z_lo
+geometry.prob_hi     =  0.014  0.014  0.42   # x_hi y_hi z_hi
+
+peleLM.lo_bc = Inflow Inflow Outflow                # Interior, Inflow, Outflow, Symmetry,SlipWallAdiab, NoSlipWallAdiab, SlipWallIsotherm, NoSlipWallIsotherm
+peleLM.hi_bc = Inflow Inflow SlipWallIsotherm
+
+
+# -------------------------AMR CONTROL----------------------------
+amr.n_cell          = 32 32 512             # Level 0 number of cells in each direction
+amr.v               = 2                      # AMR verbose
+amr.max_level       = 1                      # maximum level number allowed
+amr.ref_ratio       = 2 2 2 2 2 2            # refinement ratio
+amr.regrid_int      = 35020                  # how often to regrid
+amr.n_error_buf     = 2 2 3 4                # number of buffer cells in error est
+amr.grid_eff        = 0.9                    # what constitutes an efficient grid
+amr.blocking_factor = 16 16 16               # block factor in grid generation (min box size)
+amr.max_grid_size_x = 32 32
+amr.max_grid_size_y = 32 32
+amr.max_grid_size_z = 32 32
+
+# -------------------------- Temporal --------------------------------
+
+amr.max_step        = 100000
+amr.dt_change_max   = 1.1
+amr.stop_time       = 2.0
+amr.cfl             = 0.5
+
+# ------------------------- Plotting ----------------------------
+
+amr.plot_file           = "plt_N2_"
+amr.plot_int            = 500
+amr.check_file          = "chk_N2_"
+amr.check_int           = 500
+prob.plot_harps_file    = "plt_harps_N2_"
+prob.plot_harps_int     = 500
+#amr.restart            = chk_N2_5000
+
+amr.plot_speciesState   = 1                  # Force adding state rhoYs to plot files
+peleLM.plot_extSource   = true
+amr.plot_overwrite      = true
+amr.plot_init_state     = true
+amr.derive_plot_vars    = avg_pressure mass_fractions mag_vel viscosity diffcoeff lambda mole_fractions mag_vort
+
+
+# --------------------------- Problem -------------------------------
+prob.P_mean         = 101325
+prob.T_mean         = 293.15
+prob.T_wall         = 293.15
+prob.tanflux_sccm   = 10000.0
+prob.perpflux_sccm  = 0000.0
+
+prob.power          = 600.0
+prob.power_shape    = 1                 # Static Power Shape (0: uniform cylinder;  1: parabolic)
+prob.z_center_waveguide = 0.1465
+prob.power_radiusx  = 0.008
+prob.power_radiusy  = 0.008
+prob.power_radiusz  = 0.025
+prob.power_time     = 0.10
+
+prob.flag_solve_EM      = 0                 # Flag for calling Harps
+prob.normalize_power    = 1
+prob.EM_t_start         = 0.05
+prob.harps_verbose      = 1
+prob.flag_optimize_reflector    = 1         # Flag for optimizing reflector position
+
+# -------------------------- Embedded BC -------------------------------
+
+peleLM.divu_dt_rhoMin   = 1e-5
+peleLM.refine_EB_max_level = 0
+peleLM.refine_EB_buffer = 2.0
+peleLM.refine_EB_type   = Static
+peleLM.isothermal_EB    = 1
+peleLM.EBinflow         = 0
+
+# EB2 Geometry (UserDefined)
+eb2.geom_type           = UserDefined
+eb2.maxiter             = 200
+eb2.num_coarsen_opt     = 1
+eb2.small_volfrac       = 5.0e-3
+eb2.cover_multiple_cuts = 1
+eb2.fillet_r            = 5.0e-4
+eb2.fillet_r_16         = 5.0e-4
+eb2.cyl_R               = 0.013
+eb2.ztan                = -0.060
+eb2.rtan                = 0.001
+eb2.ntan                = 4
+eb2.nperp               = 2
+eb2.ro2                 = 0.003
+eb2.zperp               = -0.223
+eb2.rperp               = 0.001
+
+
+#-------------------------PeleLM CONTROL----------------------------
+peleLM.v                = 1
+peleLM.incompressible   = 0
+peleLM.gravity          = 0.0 0.0 0.0
+peleLM.user_defined_ext_sources = true
+
+# Solvers tolerances
+diffusion.rtol          = 1.0e-8
+diffusion.atol          = 1.0e-10
+diffusion.max_iter      = 100
+
+tensor_diffusion.rtol   = 1.0e-8
+tensor_diffusion.atol   = 1.0e-10
+tensor_diffusion.max_iter = 100
+
+mac_proj.rtol           = 1e-10
+nodal_proj.rtol         = 1e-11
+
+# Timestepping & Advance
+peleLM.deltaT_verbose   = 0
+peleLM.deltaT_iterMax   = 20
+peleLM.deltaT_crashIfFailing = 0
+peleLM.deltaT_tol       = 1e-8
+peleLM.sdc_iterMax      = 2
+peleLM.floor_species    = 1
+peleLM.typical_values_reset_int = 250
+peleLM.do_load_balancing = 1
+
+# Temporals & Diagnostics
+peleLM.do_temporals     = 1
+peleLM.temporal_int     = 150
+peleLM.do_extremas      = 1
+peleLM.do_mass_balance  = 1
+peleLM.mlmg_fail_plt_residuals = true
+
+# Turbulence
+peleLM.les_model        = WALE
+peleLM.plot_les         = 1
+peleLM.Prandtl          = 0.7
+peleLM.Schmidt          = 0.7
+peleLM.les_v            = 0
+
+
+# --------------- INPUTS TO CHEMISTRY REACTOR ---------------
+peleLM.chem_integrator  = "ReactorCvode"
+peleLM.use_typ_vals_chem = 1                 # Use species/temp typical values in CVODE
+ode.rtol                = 1.0e-7             # Relative tolerance of chemical solve
+ode.atol                = 1.0e-6             # Absolute tolerance factor applied on typical values
+ode.clean_init_massfrac = 1
+cvode.solve_type        = dense_direct       # CVODE Linear solve type
+cvode.max_order         = 4                  # CVODE max BDF order
+
+
+#------------------------- ACTIVE CONTROL --------------------------
+control.Time_ctrl       = 0.3
+control.Tctrl_on        = 0
+control.T_target        = 3800.0
+control.Tctrl_int       = 200
+control.tau             = 5.0e-3
+control.rz_min          = 0.05
+control.rz_max          = 0.5
+control.drz_max         = 1.0e-3
+control.Kp              = 1.0e-5
+control.Ki              = 0.0
+control.Tctrl_verbose   = 0
+
+
+#-------------------------- SPONGE ---------------------------------
+sponge.on               = true
+sponge.zbeg             = -0.028
+sponge.zend             = 0.02
+sponge.r                = 0.013
+sponge.sigma_perp       = 200
+sponge.sigma_para       = 0
+sponge.shape            = 2
+
+
+#--------------------LINEAR SOLVER CONTROL------------------------
+nodal_proj.verbose              = 0
+nodal_proj.mg_max_coarsening_level = 5
+nodal_proj.rtol                 = 1.0e-8
+nodal_proj.atol                 = 1.0e-10
+nodal_proj.bottom_solver        = "hypre"
+nodal_proj.hypre_namespace      = nodal_proj.hypre
+
+nodal_proj.hypre.verbose        = 0
+nodal_proj.hypre.hypre_solver   = GMRES
+nodal_proj.hypre.hypre_preconditioner = BoomerAMG
+nodal_proj.hypre.num_krylov     = 200
+nodal_proj.hypre.max_iterations = 200
+
+nodal_proj.hypre.bamg_verbose   = 0
+nodal_proj.hypre.bamg_coarsen_type = 8
+nodal_proj.hypre.bamg_interp_type = 6
+nodal_proj.hypre.bamg_relax_type = 11
+nodal_proj.hypre.bamg_num_sweeps = 2
+nodal_proj.hypre.bamg_cycle_type = 1
+nodal_proj.hypre.bamg_relax_order = 0
+nodal_proj.hypre.bamg_keep_transpose = 1
+nodal_proj.hypre.bamg_trunc_factor = 0.44351885396256086
+nodal_proj.hypre.bamg_strong_threshold = 0.30015419030906665
+nodal_proj.hypre.bamg_pmax_elmts = 4
+nodal_proj.hypre.bamg_agg_num_levels = 3
+nodal_proj.hypre.bamg_agg_interp_type = 5
+nodal_proj.hypre.bamg_agg_pmax_elmts = 5
+nodal_proj.hypre.bamg_smooth_type = 5
+nodal_proj.hypre.bamg_smooth_num_sweeps = 1
+nodal_proj.hypre.bamg_smooth_num_levels = 1
+nodal_proj.hypre.bamg_ilu_type = 0
+nodal_proj.hypre.bamg_ilu_level = 0
+nodal_proj.hypre.bamg_ilu_max_iter = 1
+nodal_proj.hypre.bamg_ilu_reordering_type = 0
+nodal_proj.hypre.bamg_ilu_tri_solve = 0
+nodal_proj.hypre.bamg_ilu_lower_jacobi_iters = 13
+nodal_proj.hypre.bamg_ilu_upper_jacobi_iters = 5
+
+mac_proj.verbose                = 0
+mac_proj.mg_max_coarsening_level = 5
+mac_proj.bottom_rtol            = 5.0e-3
+mac_proj.bottom_atol            = 1.0e-10
+mac_proj.bottom_solver          = "hypre"
+mac_proj.bottom_verbose         = 0
+mac_proj.hypre_namespace        = "mac_proj.hypre"
+mac_proj.hypre.verbose          = 0
+mac_proj.hypre.hypre_solver     = GMRES
+mac_proj.hypre.hypre_preconditioner = BoomerAMG
+mac_proj.hypre.bamg_verbose     = 0
+mac_proj.hypre.num_krylov       = 30
+mac_proj.hypre.max_iterations   = 30
+mac_proj.hypre.bamg_coarsen_type = 10
+mac_proj.hypre.bamg_interp_type = 6
+mac_proj.hypre.bamg_relax_type  = 7
+mac_proj.hypre.bamg_num_sweeps  = 5
+mac_proj.hypre.bamg_cycle_type  = 1
+mac_proj.hypre.bamg_relax_order = 0
+mac_proj.hypre.bamg_trunc_factor = 0.25
+mac_proj.hypre.bamg_max_levels  = 10
+mac_proj.hypre.bamg_pmax_elmts  = 4
+mac_proj.hypre.bamg_keep_transpose = 1
+mac_proj.hypre.bamg_strong_threshold = .57
+mac_proj.hypre.recompute_preconditioner = 1
+mac_proj.hypre.write_matrix_files = 0
+mac_proj.hypre.overwrite_existing_matrix_files = 0
+mac_proj.hypre.adjust_singular_matrix = 1
