@@ -24,9 +24,11 @@ USE_SYCL = FALSE
 DEBUG = FALSE
 FSANITIZER = FALSE
 THREAD_SANITIZER = FALSE
+
 # PeleLMeX
 USE_EFIELD = FALSE
 USE_AXISWIRL = TRUE
+USE_MWSOLVER = TRUE
 USE_SUNDIALS = TRUE
 
 # PelePhysics
@@ -36,23 +38,16 @@ Transport_Model = Simple
 
 PELE_HOME ?= ../../..
 
-# HARPS - MW EFIELD SOLVER
-HARPS_SRC_DIR = ../../../../harps/src
+ifeq ($(USE_MWSOLVER),TRUE)
+  HARPS_SRC_DIR = ../../../../harps/src
+  CEXE_sources += harps.cpp CartesianCoordinates.cpp ConfigParser.cpp MatrixSolver.cpp
+  VPATH_LOCATIONS   += $(HARPS_SRC_DIR)
+  INCLUDE_LOCATIONS += $(HARPS_SRC_DIR)
 
-CEXE_sources += harps.cpp
-
-VPATH_LOCATIONS   += $(HARPS_SRC_DIR)
-INCLUDE_LOCATIONS += $(HARPS_SRC_DIR)
-
-CEXE_sources += CartesianCoordinates.cpp
-CEXE_sources += ConfigParser.cpp
-CEXE_sources += MatrixSolver.cpp
-
-# PETSc Dependencies
-PETSC_DIR := $(shell spack location -i petsc)
-
-INCLUDE_LOCATIONS += $(PETSC_DIR)/include
-LIBRARY_LOCATIONS += $(PETSC_DIR)/lib
-LIBRARIES         += -lpetsc
+  PETSC_DIR := $(shell spack location -i petsc)
+  INCLUDE_LOCATIONS += $(PETSC_DIR)/include
+  LIBRARY_LOCATIONS += $(PETSC_DIR)/lib
+  LIBRARIES         += -lpetsc
+endif
 
 include $(PELE_HOME)/Exec/Make.PeleLMeX

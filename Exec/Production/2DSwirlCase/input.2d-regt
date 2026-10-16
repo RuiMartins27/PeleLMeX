@@ -52,7 +52,7 @@ prob.flag_power_shape   = 1         # Static Power Shape (0: uniform cylinder;  
 
 prob.flag_solve_EM      = 1         # Flag for calling Harps
 prob.normalize_power    = 1
-prob.EM_t_start         = 0.15
+prob.EM_t_start         = 0.05
 prob.plot_harps_file    = "plt_harps_N2_10slm_600W_corr_"
 prob.plot_harps_int     = 500
 prob.harps_verbose      = 1
@@ -63,10 +63,10 @@ peleLM.v = 1
 
 #amr.restart   = chk_N2_600W_46000
 amr.max_step  = 150000
-amr.stop_time = 0.75
+amr.stop_time = 0.25
 
-amr.plot_file   = "plt_N2_10slm_600W_corr_"
-amr.check_file  = "chk_N2_10slm_600W_corr_"
+amr.plot_file   = "plt_N2_10slm_600W_"
+amr.check_file  = "chk_N2_10slm_600W_"
 amr.check_int   = 1000
 amr.plot_int    = 500
 

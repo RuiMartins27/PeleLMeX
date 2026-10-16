@@ -56,6 +56,9 @@ endif
 ifeq ($(USE_AXISWIRL),TRUE)
    DEFINES += -DPELE_USE_AXISWIRL
 endif
+ifeq ($(USE_MWSOLVER),TRUE)
+   DEFINES += -DPELE_USE_MWSOLVER
+endif
 ifeq ($(USE_PARTICLES), TRUE)
    ifdef SPRAY_FUEL_NUM
       # This tells PelePhysics that PeleC is not being used

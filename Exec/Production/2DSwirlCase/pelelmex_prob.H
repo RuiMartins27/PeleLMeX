@@ -11,9 +11,12 @@
 #include <PMFData.H>
 #include <PelePhysics.H>
 
-#include <petscksp.h>
+#ifdef PELE_USE_MWSOLVER
 
+#include <petscksp.h>
 #include <harps.h>
+
+#endif
 
 struct MyProbParm : public ProbParmDefault
 {
@@ -40,21 +43,25 @@ struct MyProbParm : public ProbParmDefault
   int meanFlowDir = 1;
   amrex::Real solidBody = 0.01;
 
+  amrex::Real sponge_gamma = 1;
+  amrex::Real sponge_zstart = 0.27;
+  amrex::Real sponge_zend = 0.32;
+
   amrex::Real total_power = 0.0;
   amrex::Real z_center_waveguide = 0.14;
+  int flag_power_shape = 1;
+
+  #ifdef PELE_USE_MWSOLVER
 
   amrex::Real EM_t_start = 0.15;
   int plot_harps_int = 100;
   int harps_verbose = 1;
   bool flag_solve_EM = false;
-  int flag_power_shape = 1;
   bool flag_optimize_reflector = false;
   bool normalize_power = true;
   amrex::GpuArray<char, 64> plot_harps_file = {"plt_harps"};
 
-  amrex::Real sponge_gamma = 1;
-  amrex::Real sponge_zstart = 0.27;
-  amrex::Real sponge_zend = 0.32;
+  #endif
 };
 
 struct MyProblemSpecificFunctions : public DefaultProblemSpecificFunctions

@@ -1,8 +1,15 @@
 #include <PeleLMeX.H>
 #include <AMReX_ParmParse.H>
-#include "lut_plasma_props.h"
 
 #include <AMReX_PlotFileUtil.H>
+
+#ifdef PELE_USE_MWSOLVER
+
+#include "lut_plasma_props.h"
+
+#endif
+
+
 double get_real_rss_mb() {
     std::ifstream status_file("/proc/self/status");
     std::string line;
@@ -45,9 +52,15 @@ PeleLM::readProbParm()
   pp.query("quench_center", PeleLM::prob_parm->quench_center);
   pp.query("quench_delta", PeleLM::prob_parm->quench_delta);
 
+  pp.query("sponge_gamma", PeleLM::prob_parm->sponge_gamma);
+  pp.query("sponge_zstart", PeleLM::prob_parm->sponge_zstart);
+  pp.query("sponge_zend", PeleLM::prob_parm->sponge_zend);
+
   pp.query("total_power", PeleLM::prob_parm->total_power);
   pp.query("z_center_waveguide", PeleLM::prob_parm->z_center_waveguide);
   pp.query("flag_power_shape", PeleLM::prob_parm->flag_power_shape);
+
+  #ifdef PELE_USE_MWSOLVER
 
   pp.query("EM_t_start", PeleLM::prob_parm->EM_t_start);
   pp.query("flag_solve_EM", PeleLM::prob_parm->flag_solve_EM);
@@ -60,9 +73,7 @@ PeleLM::readProbParm()
   std::string plot_harps_file_str; 
   pp.query("plot_harps_file", plot_harps_file_str); std::strncpy(prob_parm->plot_harps_file.data(), plot_harps_file_str.c_str(), 64); prob_parm->plot_harps_file[63] = '\0'; // Ensure null-termination
 
-  pp.query("sponge_gamma", PeleLM::prob_parm->sponge_gamma);
-  pp.query("sponge_zstart", PeleLM::prob_parm->sponge_zstart);
-  pp.query("sponge_zend", PeleLM::prob_parm->sponge_zend);
+  #endif
 }
 
 void
@@ -70,6 +81,7 @@ PeleLM::freeProbParm()
 {
 }
 
+#ifdef PELE_USE_MWSOLVER
 
 AMREX_GPU_DEVICE AMREX_FORCE_INLINE
 int find_nonuniform_index(const double* arr, int size, double val) {
@@ -86,6 +98,8 @@ int find_nonuniform_index(const double* arr, int size, double val) {
     }
     return ans;
 }
+
+#endif
 
 
 void ProblemSpecificFunctions::modify_ext_sources(
@@ -114,10 +128,10 @@ void ProblemSpecificFunctions::modify_ext_sources(
   amrex::Real z_half_width = 0.025; 
   amrex::Real r_max        = 0.008;  // 0.8 cm
 
-  amrex::Real power_time   = 0.2;  //
+  amrex::Real power_time   = 0.2; 
 
   static amrex::Real normalization_factor = 1;
-
+  
   bool do_harps = 0; 
 
   total_power *= amrex::min(1.0, time/power_time);
@@ -128,11 +142,15 @@ void ProblemSpecificFunctions::modify_ext_sources(
 
   if (total_power < 1e-6) return;
   
+  #ifdef PELE_USE_MWSOLVER
+
   if (prob_parm_d->flag_solve_EM && time > prob_parm_d->EM_t_start){
     do_harps = 1;
   } else{
     do_harps = 0;
   }
+
+  #endif
 
   if (do_harps == 0 || harps_counter <= 10) {
     const int power_shape = prob_parm_d->flag_power_shape;
@@ -172,6 +190,9 @@ void ProblemSpecificFunctions::modify_ext_sources(
       }
     });
   }
+
+  #ifdef PELE_USE_MWSOLVER
+
   if (do_harps == 1) {
     harps_counter++;
 
@@ -549,5 +570,5 @@ void ProblemSpecificFunctions::modify_ext_sources(
         << "\n";
     }
   }
-
+  #endif
 };
