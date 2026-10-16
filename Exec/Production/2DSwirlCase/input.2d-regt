@@ -88,7 +88,7 @@ amr.plot_init_state = true
 #amr.fixed_dt = 1.5e-5
 amr.dt_shrink = 0.3
 amr.cfl = 0.5
-amr.cfl_swirl = 0.5
+amr.cfl_swirl = 0.5  # Using 100 ignores this condition and this example breaks at 0.08s
 
 peleLM.deltaT_iterMax = 20
 peleLM.deltaT_crashIfFailing = 0

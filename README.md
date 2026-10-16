@@ -194,6 +194,8 @@ Coupling with EM solver for Microwave Input Power Distribution is made via a sep
 
 The instalation steps are listed below.
 
+One can use the option USE_MWSOLVER == FALSE and skip the installation of HARPS and PETSc
+
 Install Dependencies
 
 ```
@@ -222,9 +224,9 @@ git submodule update --init --recursive
 Install Chemistry Set if needed. After adding new chemistry set to PelePhysics/Mechanisms such as airThermal.
 When installing airThermal it is common to get error on line 3285 of airThermal/mechanism.H where it is missing amrex::Real  before redP
 ```
+cd Submodules/PelePhysics/Support/ceptr/
 poetry install
 poetry update
-cd Submodules/elePhysics/Support/ceptr/
 poetry run convert -f ../../Mechanisms/airThermal/mechanism.yaml
 ```
 
