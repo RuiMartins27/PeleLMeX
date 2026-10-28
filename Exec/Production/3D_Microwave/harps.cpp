@@ -614,6 +614,65 @@ void interpolate_rz_to_yz(const std::vector<double>& y,const std::vector<double>
     }
 }
 
+void interpolate_xyz_to_yz(const std::vector<double>& y, const std::vector<double>& z, std::vector<std::tuple<int, int, int>>& plasma_locations,
+                        std::vector<double>& plasma_ne, std::vector<double>& plasma_mu_re, std::vector<double>& plasma_mu_im,
+                        const std::vector<double>& amrex_n_e, const std::vector<double>& amrex_mu_re, const std::vector<double>& amrex_mu_im,
+                        int Nx, int Ny, int Nz, const double* prob_lo, const double* dx, double y_c, double R_in, double z_0){
+    plasma_locations.clear();
+    plasma_ne.clear();
+    plasma_mu_re.clear();
+    plasma_mu_im.clear();
+
+    for (size_t m = 0; m < y.size(); ++m) {
+        double r_target = std::abs(y[m] - y_c);
+        if (r_target > R_in) continue;
+
+        for (size_t n = 0; n < z.size(); ++n) {
+            const double y_axis = prob_lo[1] + 0.5*Ny*dx[1];   // domain centre (≈ 0 here)
+
+            double x_val = 0.0;
+            double y_val = y_axis + (y[m] - y_c);   // or y_axis + r_target to force symmetry
+            double z_val = z_0 - z[n];
+
+            double f_i = (x_val - prob_lo[0]) / dx[0] + 0.5;
+            double f_j = (y_val - prob_lo[1]) / dx[1] + 0.5;
+            double f_k = (z_val - prob_lo[2]) / dx[2] + 0.5;
+
+            int i0 = std::clamp(static_cast<int>(std::floor(f_i)), 0, Nx - 2);
+            int j0 = std::clamp(static_cast<int>(std::floor(f_j)), 0, Ny - 2);
+            int k0 = std::clamp(static_cast<int>(std::floor(f_k)), 0, Nz - 2);
+
+            int i1 = i0 + 1;
+            int j1 = j0 + 1;
+            int k1 = k0 + 1;
+
+            double dx_f = std::clamp(f_i - i0, 0.0, 1.0);
+            double dy_f = std::clamp(f_j - j0, 0.0, 1.0);
+            double dz_f = std::clamp(f_k - k0, 0.0, 1.0);
+
+            auto trilinear_interp = [&](const std::vector<double>& field) {
+                auto idx = [&](int ii, int jj, int kk) { return ii + Nx * (jj + Ny * kk); };
+                double v000 = field[idx(i0, j0, k0)], v100 = field[idx(i1, j0, k0)];
+                double v010 = field[idx(i0, j1, k0)], v110 = field[idx(i1, j1, k0)];
+                double v001 = field[idx(i0, j0, k1)], v101 = field[idx(i1, j0, k1)];
+                double v011 = field[idx(i0, j1, k1)], v111 = field[idx(i1, j1, k1)];
+                double c00 = (1.0 - dx_f) * v000 + dx_f * v100;
+                double c10 = (1.0 - dx_f) * v010 + dx_f * v110;
+                double c01 = (1.0 - dx_f) * v001 + dx_f * v101;
+                double c11 = (1.0 - dx_f) * v011 + dx_f * v111;
+                double c0 = (1.0 - dy_f) * c00 + dy_f * c10;
+                double c1 = (1.0 - dy_f) * c01 + dy_f * c11;
+                
+                return (1.0 - dz_f) * c0 + dz_f * c1;
+            };
+
+            plasma_locations.push_back(std::make_tuple(0, static_cast<int>(m), static_cast<int>(n)));
+            plasma_ne.push_back(trilinear_interp(amrex_n_e));
+            plasma_mu_re.push_back(trilinear_interp(amrex_mu_re));
+            plasma_mu_im.push_back(trilinear_interp(amrex_mu_im));
+        }
+    }
+}
 
 double optimizeReflectorPosition(const std::string& config_file_path, const std::vector<std::tuple<int, int, int>>& plasma_locations,
                         const std::vector<double>& plasma_ne, const std::vector<double>& plasma_mu_re, const std::vector<double>& plasma_mu_im,

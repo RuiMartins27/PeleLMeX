@@ -9,21 +9,6 @@
 
 #endif
 
-
-double get_real_rss_mb() {
-    std::ifstream status_file("/proc/self/status");
-    std::string line;
-    while (std::getline(status_file, line)) {
-        if (line.compare(0, 6, "VmRSS:") == 0) {
-            std::istringstream iss(line);
-            std::string key;
-            long kb;
-            iss >> key >> kb;
-            return static_cast<double>(kb) / 1024.0;
-        }
-    }
-    return 0.0;
-}
 void
 PeleLM::readProbParm()
 {
@@ -259,9 +244,11 @@ void ProblemSpecificFunctions::modify_ext_sources(
     
     
     // Compute conductivity related quantities (n_e, mu)
-    amrex::Real E_ion_O2 = 12.06*1.60218e-19; // J
+    amrex::Real E_ion_O2 = 12.07*1.60218e-19; // J
     amrex::Real E_ion_N2 = 15.58*1.60218e-19; // J
     amrex::Real E_ion_NO = 9.26*1.60218e-19;  // J
+    amrex::Real E_ion_N = 14.53*1.60218e-19;  // J
+    amrex::Real E_ion_O = 13.14*1.60218e-19;  // J
     amrex::Real h_planck = 6.62607015e-34;      // J*s
     amrex::Real k_B = 1.380649e-23;             // J/K
     amrex::Real m_e = 9.10938356e-31;           // kg
@@ -311,8 +298,10 @@ void ProblemSpecificFunctions::modify_ext_sources(
         n_e_O2 = sqrt(n_O2_mid*pow(2*3.14159*m_e*k_B*Te_mid/h_planck/h_planck,1.5)*exp(-E_ion_O2/(k_B*Te_mid)));
         n_e_N2 = sqrt(n_N2_mid*pow(2*3.14159*m_e*k_B*Te_mid/h_planck/h_planck,1.5)*exp(-E_ion_N2/(k_B*Te_mid)));
         n_e_NO = sqrt(n_NO_mid*pow(2*3.14159*m_e*k_B*Te_mid/h_planck/h_planck,1.5)*exp(-E_ion_NO/(k_B*Te_mid)));
+        n_e_N = sqrt(n_N_mid*pow(2*3.14159*m_e*k_B*Te_mid/h_planck/h_planck,1.5)*exp(-E_ion_N/(k_B*Te_mid)));
+        n_e_O = sqrt(n_O_mid*pow(2*3.14159*m_e*k_B*Te_mid/h_planck/h_planck,1.5)*exp(-E_ion_O/(k_B*Te_mid)));
 
-        amrex::Real ne_saha = sqrt(n_e_O2*n_e_O2 + n_e_N2*n_e_N2 + n_e_NO*n_e_NO)*(1/(1 + pow((Te_mid/Tg_mid - 1)/(1.8 - 1), 4)));  // Non equilibrium correction factor
+        amrex::Real ne_saha = sqrt(n_e_O2*n_e_O2 + n_e_N2*n_e_N2 + n_e_NO*n_e_NO + n_e_N*n_e_N + n_e_O*n_e_O)*(1/(1 + pow((Te_mid/Tg_mid - 1)/(1.8 - 1), 4)));  // Non equilibrium correction factor
         amrex::Real ne_old = n_e_old_arr[box_no](i,j,k);
 
         amrex::Real ne_new = ne_old*pow(ne_saha / ne_old, alpha_under_relaxation); // Under relaxation

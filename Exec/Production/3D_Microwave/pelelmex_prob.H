@@ -215,7 +215,6 @@ struct MyProbParm : public ProbParmDefault
   amrex::Real spark_radiusx = 0.0;
   amrex::Real spark_radiusz = 0.0;
   amrex::Real power = 0.0;
-  amrex::Real power_center = 0.0;
   amrex::Real power_radiusx = 0.0;
   amrex::Real power_radiusy = 0.0;
   amrex::Real power_radiusz = 0.0;
@@ -329,12 +328,9 @@ struct MyProblemSpecificFunctions : public DefaultProblemSpecificFunctions
 
     state(i, j, k, TEMP) = prob_parm.T_mean;
     amrex::Real P_cgs = prob_parm.P_mean * 10.0;
-    massfrac[O2_ID] = 1.0;
-//    //massfrac[N2_ID]  = 1.0 - massfrac[O2_ID];
-//    amrex::Real X_quench[NUM_SPECIES] = {0.0};
-//    X_quench[N2_ID] = 0.0;
-//    X_quench[O2_ID] = 1.0 - X_quench[N2_ID];
-//    eos.X2Y(X_quench, massfrac); 
+    massfrac[O2_ID]  = 0.0;
+    massfrac[N2_ID]  = 1.0 - massfrac[O2_ID];
+
     
     // Density
     amrex::Real rho_cgs = 0.0;
@@ -374,21 +370,15 @@ struct MyProblemSpecificFunctions : public DefaultProblemSpecificFunctions
   amrex::Real X_quench[NUM_SPECIES] = {0.0};
   amrex::Real Y_quench[NUM_SPECIES] = {0.0};
 
-  Y_main[O2_ID] = 1.0;
+  Y_main[O2_ID] = 0.0;
+  Y_main[N2_ID] = 1.0 - Y_main[O2_ID];
 
-  X_quench[N2_ID] = 0.8;
-  X_quench[O2_ID] = 1.0 - X_quench[N2_ID];
+  X_quench[O2_ID] = 1.0;
+  X_quench[N2_ID] = 1.0 - X_quench[O2_ID];
   eos.X2Y(X_quench, Y_quench ); 
-//  std::cout << "X\n"; 
-//  for (int n = 0; n < NUM_SPECIES; n++) {
-//    std::cout << n << " " << X_quench[n] << "\n";
-//  }
-//  
-//  for (int n = 0; n < NUM_SPECIES; n++) {
-//    std::cout << n << " " << Y_quench[n] << "\n";
-//  }
-
-  amrex::Real time_perp = 1;// amrex::min(amrex::max(0.0, time - 0.6)/0.4, 1.0);
+  
+  amrex::Real time_tan = 1; // amrex::min(amrex::max(0.0, time)/0.4, 1.0);
+  amrex::Real time_perp = amrex::min(amrex::max(0.0, time - 0.6)/0.4, 1.0);
 
   amrex::Real zseparate= 0.0;
   zseparate = prob_hi[2] + prob_parm.ztan - 4*prob_parm.rtan ;
@@ -398,7 +388,6 @@ struct MyProblemSpecificFunctions : public DefaultProblemSpecificFunctions
   amrex::Real limit = 0.028/64*0.55;
   bool inside_four = (abs(x[2]-zfour) < limit) && (abs(x[1])< limit);
   if (idir == 0 ) {
-//    std::cout << x[2] << " " << zseparate << "\n";
     amrex::Real p_cgs = prob_parm.P_mean * 10.0;
     amrex::Real rho_cgs = 0.0;
     amrex::Real RhoH_temp = 0.0;
@@ -412,7 +401,7 @@ struct MyProblemSpecificFunctions : public DefaultProblemSpecificFunctions
       s_ext[FIRSTSPEC + n] = Y_main[n] * s_ext[DENSITY];
     }
 
-    s_ext[VELX] = sgn*prob_parm.vmean_tan;
+    s_ext[VELX] = sgn*prob_parm.vmean_tan*time_tan;
     s_ext[VELY] = 0.0;
     s_ext[VELZ] = 0.0;
 
@@ -461,7 +450,7 @@ struct MyProblemSpecificFunctions : public DefaultProblemSpecificFunctions
     }
 
     s_ext[VELX] = 0.0;
-    s_ext[VELY] = sgn*prob_parm.vmean_tan;
+    s_ext[VELY] = sgn*prob_parm.vmean_tan*time_tan;
     s_ext[VELZ] = 0.0;
   }
   else if (idir == 2){
