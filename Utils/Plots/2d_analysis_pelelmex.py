@@ -3,12 +3,12 @@ import yt
 import numpy as np
 
 data_dir     = "../../Exec/Production/2DSwirlCase"
-cfd_prefix   = "plt_N2_10slm_600W_no_harps_compiler_"
+cfd_prefix   = "plt_N2_10slm_600W_"
 harps_prefix = "plt_N2_10slm_600W_no_use"
 
-start_step  = 11500     # last 
+start_step  = 91000     # last 
 step_stride = 500     # go backwards in steps of this size
-n_datasets  = 3
+n_datasets  = 20
 
 steps = [start_step - i * step_stride for i in range(n_datasets)]
 

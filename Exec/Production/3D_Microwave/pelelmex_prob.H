@@ -378,7 +378,7 @@ struct MyProblemSpecificFunctions : public DefaultProblemSpecificFunctions
   eos.X2Y(X_quench, Y_quench ); 
   
   amrex::Real time_tan = 1; // amrex::min(amrex::max(0.0, time)/0.4, 1.0);
-  amrex::Real time_perp = amrex::min(amrex::max(0.0, time - 0.6)/0.4, 1.0);
+  amrex::Real time_perp = amrex::min(amrex::max(0.0, time - 0.6)/0.3, 1.0);
 
   amrex::Real zseparate= 0.0;
   zseparate = prob_hi[2] + prob_parm.ztan - 4*prob_parm.rtan ;

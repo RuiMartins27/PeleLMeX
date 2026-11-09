@@ -262,7 +262,7 @@ void ProblemSpecificFunctions::modify_ext_sources(
       if (z > z_0 && z < z_0 + L_z){
         amrex::Real Tg_mid;
         amrex::Real n_O2_mid; amrex::Real n_N2_mid; amrex::Real n_NO_mid = 0; amrex::Real n_O_mid = 0; amrex::Real n_N_mid = 0;
-        amrex::Real n_e_O2; amrex::Real n_e_N2; amrex::Real n_e_NO = 0;
+        amrex::Real n_e_O2; amrex::Real n_e_N2; amrex::Real n_e_NO = 0; amrex::Real n_e_O = 0; amrex::Real n_e_N = 0;
         amrex::Real E_field_mid;
 
         // Mid Point Rule (using n and n+1,k)
@@ -301,7 +301,7 @@ void ProblemSpecificFunctions::modify_ext_sources(
         n_e_N = sqrt(n_N_mid*pow(2*3.14159*m_e*k_B*Te_mid/h_planck/h_planck,1.5)*exp(-E_ion_N/(k_B*Te_mid)));
         n_e_O = sqrt(n_O_mid*pow(2*3.14159*m_e*k_B*Te_mid/h_planck/h_planck,1.5)*exp(-E_ion_O/(k_B*Te_mid)));
 
-        amrex::Real ne_saha = sqrt(n_e_O2*n_e_O2 + n_e_N2*n_e_N2 + n_e_NO*n_e_NO + n_e_N*n_e_N + n_e_O*n_e_O)*(1/(1 + pow((Te_mid/Tg_mid - 1)/(1.8 - 1), 4)));  // Non equilibrium correction factor
+        amrex::Real ne_saha = sqrt(n_e_O2*n_e_O2 + n_e_N2*n_e_N2 + n_e_NO*n_e_NO + n_e_N*n_e_N + n_e_O*n_e_O);// *(1/(1 + pow((Te_mid/Tg_mid - 1)/(1.8 - 1), 4)));  // Non equilibrium correction factor
         amrex::Real ne_old = n_e_old_arr[box_no](i,j,k);
 
         amrex::Real ne_new = ne_old*pow(ne_saha / ne_old, alpha_under_relaxation); // Under relaxation

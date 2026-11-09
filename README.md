@@ -201,15 +201,16 @@ Install Dependencies
 ```
 git clone https://github.com/spack/spack.git ~/spack
 source ~/spack/share/spack/setup-env.sh
-spack install petsc +complex +mumps +metis +scalapack +hypre +suite-sparse +superlu-dist +fortran +shared ^mumps+parmetis
 spack install openmpi
+spack install petsc +complex +mumps +metis +scalapack ~hypre +suite-sparse +superlu-dist +fortran +shared ^mumps+parmetis ^openmpi
+spack install hypre ~complex ^openmpi
 ```
 
 Clone the directories
 ```
 mkdir power_coupling
 cd power_coupling
-git clone git@gitlab.com:Ruimartins27/harps.git
+git clone https://github.com/RuiMartins27/harps
 git clone --branch axiswirl-power --single-branch https://github.com/RuiMartins27/PeleLMeX.git
 ```
 

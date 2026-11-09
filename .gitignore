@@ -31,7 +31,7 @@ Exec/Production/2DSwirlCase/*.out
 Exec/RegTests/HotBubble/*.dat
 Exec/Production/2DSwirlCase/cfd
 
-*.slurm
+
 *.png
 *.pdf
 *.npz

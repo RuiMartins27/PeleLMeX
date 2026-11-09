@@ -449,8 +449,9 @@ void ProblemSpecificFunctions::modify_ext_sources(
     // HARPS 2D Setup Geometry
     double y_c = 0.056;
     double R_in = 0.0135;
-    double L_z = 0.120;
-    double z_0 = z_center_waveguide + (L_z/2 - 0.01);
+    double a = 0.08636;
+    double L_z = 0.140;
+    double z_0 = z_center_waveguide + (L_z/2 - 0.02);
     
     static double y_reflector = 1e6;
     const bool optimize_reflector_enabled = (prob_parm_d->flag_optimize_reflector == 1);
@@ -520,7 +521,7 @@ void ProblemSpecificFunctions::modify_ext_sources(
     amrex::Real alpha_under_relaxation = 0.5;
 
     amrex::ParallelFor(*ext_src, [=] AMREX_GPU_DEVICE (int box_no, int i, int j, int k) noexcept {
-      amrex::Real z = prob_lo[2] + (static_cast<amrex::Real>(k) - 0.5)*dx[2];
+      amrex::Real z = prob_lo[2] + (static_cast<amrex::Real>(k) + 0.5)*dx[2];
       if (z < z_0 && z > z_0 - L_z){
         amrex::Real Tg_mid;
         amrex::Real n_O2_mid; amrex::Real n_N2_mid; amrex::Real n_NO_mid = 0; amrex::Real n_O_mid = 0; amrex::Real n_N_mid = 0;
@@ -563,7 +564,7 @@ void ProblemSpecificFunctions::modify_ext_sources(
         n_e_N = sqrt(n_N_mid*pow(2*pi*m_e*k_B*Te_mid/h_planck/h_planck,1.5)*exp(-E_ion_N/(k_B*Te_mid)));
         n_e_O = sqrt(n_O_mid*pow(2*pi*m_e*k_B*Te_mid/h_planck/h_planck,1.5)*exp(-E_ion_O/(k_B*Te_mid)));
 
-        amrex::Real ne_saha = sqrt(n_e_O2*n_e_O2 + n_e_N2*n_e_N2 + n_e_NO*n_e_NO + n_e_N*n_e_N + n_e_O*n_e_O)*(1/(1 + pow((Te_mid/Tg_mid - 1)/(1.8 - 1), 4)));  // Non equilibrium correction factor
+        amrex::Real ne_saha = sqrt(n_e_O2*n_e_O2 + n_e_N2*n_e_N2 + n_e_NO*n_e_NO + n_e_N*n_e_N + n_e_O*n_e_O); //*(1/(1 + pow((Te_mid/Tg_mid - 1)/(1.8 - 1), 4)));  // Non equilibrium correction factor
         
         amrex::Real ne_old = n_e_old_arr[box_no](i,j,k);
         amrex::Real ne_new = ne_old*pow(ne_saha / ne_old, alpha_under_relaxation); // Under relaxation
@@ -577,7 +578,7 @@ void ProblemSpecificFunctions::modify_ext_sources(
 
         if((step_counter % prob_parm_d->plot_harps_int == 0) && (sdcIter == 0)){
           Te_arr[box_no](i, j, k) = Te_mid;
-          E_over_N_arr[box_no](i, j, k) = E_over_N;
+          E_over_N_arr[box_no](i, j, k) = E_field_mid;//E_over_N;
           ne_arr[box_no](i, j, k) = n_e_arr[box_no](i,j,k);
         }
       } else {
@@ -657,16 +658,20 @@ void ProblemSpecificFunctions::modify_ext_sources(
     static std::vector<double> y, z;
     static bool grid_initialized = false;
     if (!grid_initialized) {
-      create_grid("input/2D_RZ.in", y, z);
+      create_grid("input/2D_YZ_3D_CFD.in", y, z);
       grid_initialized = true;
     }
 
-    interpolate_xyz_to_yz(y, z, plasma_locations, plasma_ne, plasma_mu_re, plasma_mu_im,
-                        amrex_n_e, amrex_mu_re, amrex_mu_im, Nx, Ny, Nz, prob_lo, dx, y_c, R_in, z_0);   
+    std::pair<double, double> plasma_center = interpolate_xyz_to_yz(y, z, plasma_locations, plasma_ne, plasma_mu_re, plasma_mu_im,
+                                                amrex_n_e, amrex_mu_re, amrex_mu_im, Nx, Ny, Nz, prob_lo, dx, y_c, R_in, z_0, a);   
 
-    if (should_optimize_reflector) y_reflector = optimizeReflectorPosition("input/2D_RZ.in", plasma_locations, plasma_ne, plasma_mu_re, plasma_mu_im, 0.08, 0.16, plasma_pabs, plasma_efield, 12, 5e-4, prob_parm_d->harps_verbose);
+    if (should_optimize_reflector) y_reflector = optimizeReflectorPosition("input/2D_YZ_3D_CFD.in", plasma_locations, plasma_ne, plasma_mu_re, plasma_mu_im, 0.08, 0.16, plasma_pabs, plasma_efield, 12, 5e-4, prob_parm_d->harps_verbose);
 
-    run_harps("input/2D_RZ.in", plasma_locations, plasma_ne, plasma_mu_re, plasma_mu_im, y_reflector, plasma_pabs, plasma_efield, prob_parm_d->harps_verbose);
+    run_harps("input/2D_YZ_3D_CFD.in", plasma_locations, plasma_ne, plasma_mu_re, plasma_mu_im, y_reflector, plasma_pabs, plasma_efield, prob_parm_d->harps_verbose);
+    
+    if(prob_parm_d->harps_verbose > 0){
+      amrex::Print() << "Plasma center = (" << plasma_center.first << ", " << plasma_center.second << ")\n";
+    }
 
     // Allocate DeviceVectors with the explicit sizes needed
     static amrex::Gpu::DeviceVector<double> d_y;
@@ -696,22 +701,26 @@ void ProblemSpecificFunctions::modify_ext_sources(
     int Nz_harps = static_cast<int>(z.size());
     
     amrex::ParallelFor(*ext_src, [=] AMREX_GPU_DEVICE (int box_no, int i, int j, int k) noexcept {
-      amrex::Real x = prob_lo[0] + (static_cast<amrex::Real>(i) - 0.5)*dx[0];
-      amrex::Real y = prob_lo[1] + (static_cast<amrex::Real>(j) - 0.5)*dx[1];
-      amrex::Real z = prob_lo[2] + (static_cast<amrex::Real>(k) - 0.5)*dx[2];
+      amrex::Real x = (static_cast<amrex::Real>(i) - ic[0]) * dx[0];
+      amrex::Real y = (static_cast<amrex::Real>(j) - ic[1]) * dx[1];
+      amrex::Real z = prob_lo[2] + (static_cast<amrex::Real>(k) + 0.5)*dx[2];
       amrex::Real r = std::sqrt(x*x + y*y);
+
+      amrex::Real x_plasma = (static_cast<amrex::Real>(i) - ic[0]) * dx[0] - plasma_center.first;
+      amrex::Real y_plasma = (static_cast<amrex::Real>(j) - ic[1]) * dx[1] - plasma_center.second;
+      amrex::Real r_plasma = std::sqrt(x_plasma*x_plasma + y_plasma*y_plasma);
 
       bool inside_r = (r <= R_in);
       bool inside_z = (z < z_0 && z > z_0 - L_z);
 
       if (inside_r && inside_z) {
-        double theta = std::atan2(y, x);
+        double theta = std::atan2(y_plasma, x_plasma);
 
         double w_right = 0.5*(1.0 + std::sin(theta));
         double w_left  = 1.0 - w_right;
 
-        double y_left   = y_c - r;
-        double y_right  = y_c + r;
+        double y_left   = y_c + plasma_center.second - r_plasma;
+        double y_right  = y_c + plasma_center.second + r_plasma;
         double z_target = z_0 - z;
 
         auto sample_2d = [=] AMREX_GPU_DEVICE (double y_t, double z_t, const double* ptr) {
@@ -727,14 +736,17 @@ void ProblemSpecificFunctions::modify_ext_sources(
           double v11 = ptr[(m0 + 1)*Nz_harps + (n0 + 1)];
           return (1.0 - dy)*(1.0 - dz)*v00 + dy*(1.0 - dz)*v10 + (1.0 - dy)*dz*v01 + dy*dz*v11;
         };
-
-        double pabs_left   = sample_2d(y_left,  z_target, pabs_ptr);
-        double pabs_right  = sample_2d(y_right, z_target, pabs_ptr);
+        // double pabs_left   = sample_2d(y_left,  z_target, pabs_ptr);
+        // double pabs_right  = sample_2d(y_right, z_target, pabs_ptr);
         double field_left  = sample_2d(y_left,  z_target, field_ptr);
         double field_right = sample_2d(y_right, z_target, field_ptr);
 
+        constexpr double e_charge = 1.60217663e-19;
+        double sigma = e_charge * n_e_arr[box_no](i, j, k) * mu_re_arr[box_no](i, j, k);
+
         if (harps_counter > 10) {
-          ext_src_rhoh_a[box_no](i, j, k, RHOH) = w_right*pabs_right + w_left*pabs_left;
+          ext_src_rhoh_a[box_no](i, j, k, RHOH) =
+              sigma * (w_right*field_right*field_right + w_left*field_left*field_left);
         }
         E_field_raw_a[box_no](i, j, k) = w_right*field_right + w_left*field_left;
       } else {
