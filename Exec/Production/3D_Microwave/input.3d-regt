@@ -23,6 +23,7 @@ amr.max_grid_size_z = 32 32
 
 # -------------------------- Temporal --------------------------------
 
+#amr.restart            = chk_N2_38000
 amr.max_step        = 40000
 amr.dt_change_max   = 1.05
 amr.stop_time       = 2.00
@@ -30,13 +31,13 @@ amr.cfl             = 0.40
 
 # ------------------------- Plotting ----------------------------
 
+peleLM.base_output_prefix = outdir/
 amr.plot_file           = "plt_N2_"
-amr.plot_int            = 100
+amr.plot_int            = 500
 amr.check_file          = "chk_N2_"
 amr.check_int           = 500
 prob.plot_harps_file    = "plt_harps_N2_"
-prob.plot_harps_int     = 100
-#amr.restart            = chk_N2_38000
+prob.plot_harps_int     = 500
 
 amr.plot_speciesState   = 1                  # Force adding state rhoYs to plot files
 peleLM.plot_extSource   = true

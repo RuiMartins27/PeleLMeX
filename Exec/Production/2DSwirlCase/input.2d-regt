@@ -22,6 +22,37 @@ amr.grid_eff        = 0.7           # what constitutes an efficient grid
 amr.blocking_factor = 4             # block factor in grid generation (min box size)
 amr.max_grid_size   = 32            # max box size
 
+# -------------------------- Temporal --------------------------------
+
+#amr.restart   = chk_N2_600W_46000
+
+amr.max_step  = 150000
+amr.stop_time = 1.00
+
+amr.cfl = 0.5
+amr.cfl_swirl = 0.5     # Using 100 ignores this condition and this example breaks at 0.08s
+
+#amr.max_dt = 2e-5
+#amr.fixed_dt = 1.5e-5
+amr.dt_shrink = 0.3
+
+# -------------------------- Plotting --------------------------------
+
+peleLM.base_output_prefix = outdir/
+
+amr.plot_file           = "plt_N2_10slm_600W_"
+amr.check_file          = "chk_N2_10slm_600W_"
+prob.plot_harps_file    = "plt_harps_N2_10slm_600W_"
+amr.check_int           = 1000
+amr.plot_int            = 500
+prob.plot_harps_int     = 500
+
+amr.plot_overwrite = true 
+amr.plot_init_state = true
+peleLM.plot_extSource = true
+amr.derive_plot_vars = avg_pressure mag_vort mass_fractions chargedistrib angmom
+
+
 #--------------------------- Problem -------------------------------
 prob.P_mean = 101325.0
 prob.solidBody = 40000.0
@@ -53,22 +84,15 @@ prob.flag_power_shape   = 1         # Static Power Shape (0: uniform cylinder;  
 prob.flag_solve_EM      = 1         # Flag for calling Harps
 prob.normalize_power    = 1
 prob.EM_t_start         = 0.10
-prob.plot_harps_file    = "plt_harps_N2_10slm_600W_"
-prob.plot_harps_int     = 500
 prob.harps_verbose      = 1
 prob.flag_optimize_reflector    = 1     # Flag for optimizing reflector position
+
 
 #-------------------------PeleLM CONTROL----------------------------
 peleLM.v = 1
 
-#amr.restart   = chk_N2_600W_46000
-amr.max_step  = 150000
-amr.stop_time = 1.00
-
-amr.plot_file   = "plt_N2_10slm_600W_"
-amr.check_file  = "chk_N2_10slm_600W_"
-amr.check_int   = 1000
-amr.plot_int    = 500
+peleLM.user_defined_ext_sources = true
+peleLM.ext_sources_SDC = true
 
 peleLM.incompressible = 0
 peleLM.rho = 1.17
@@ -80,23 +104,10 @@ peleLM.num_init_iter = 3
 peleLM.num_init_iter = 5
 peleLM.divu_dt_rhoMin = 1e-4
 
-amr.derive_plot_vars = avg_pressure mag_vort mass_fractions chargedistrib angmom
-amr.plot_overwrite = true 
-amr.plot_init_state = true
-
-#amr.max_dt = 2e-5
-#amr.fixed_dt = 1.5e-5
-amr.dt_shrink = 0.3
-amr.cfl = 0.5
-amr.cfl_swirl = 0.5  # Using 100 ignores this condition and this example breaks at 0.08s
-
 peleLM.deltaT_iterMax = 20
 peleLM.deltaT_crashIfFailing = 0
 peleLM.deltaT_tol = 1e-8
 
-peleLM.user_defined_ext_sources = true
-peleLM.plot_extSource = true
-peleLM.ext_sources_SDC = true
 
 # --------------- INPUTS TO CHEMISTRY REACTOR ---------------
 peleLM.chem_integrator = "ReactorCvode"
