@@ -66,6 +66,8 @@ PeleLM::readProbParm()
     cubicmeter_minute = perpflux_sccm * 1e-6 * prob_parm->T_mean * 100000 / 273.15 / prob_parm->P_mean;
     prob_parm->vmean_rad = cubicmeter_minute / prob_parm->nperp / (M_PI * prob_parm->rperp * prob_parm->rperp) / 60.0;
   }
+  pp.query("x_O2_main", prob_parm->x_O2_main);
+  pp.query("x_O2_quench", prob_parm->x_O2_quench);
 
   amrex::ParmParse ppc("control");
   pp.query("power_radiusz", prob_parm->rz);

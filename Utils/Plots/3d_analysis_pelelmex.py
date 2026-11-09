@@ -4,8 +4,8 @@ import re
 import numpy as np
 import yt
 
-base_dir = "../../Exec/Production/3D_Microwave"
-slice_axes = ["x","y", "z"]
+base_dir = "../../Exec/Production/3D_Microwave/outdir/"
+slice_axes = ["y"]         # ["x","y", "z"]
 
 z_slice_center = 0.281
 use_all_plt = False
@@ -17,9 +17,9 @@ cfd_plots_config = {
     "z_velocity": {"log_scale": False, "fix_scale": False},
     "mag_vel": {"log_scale": False, "fix_scale": False},
     "temp": {"log_scale": False, "fix_scale": False},
-    #"X(O2)": {"log_scale": False, "fix_scale": False},
-    #"X(N)": {"log_scale": False, "fix_scale": False},
-    #"X(NO)": {"log_scale": False, "fix_scale": False},
+    "X(O2)": {"log_scale": False, "fix_scale": False},
+    "X(N2)": {"log_scale": False, "fix_scale": False},
+    "X(NO)": {"log_scale": False, "fix_scale": False},
     #"divu": {"log_scale": False, "fix_scale": False},
 }
 
@@ -101,14 +101,14 @@ if __name__ == "__main__":
         plt_folders = get_all_plt_dirs(base_dir, "plt_N2_*")
         plt_folders_harps = get_all_plt_dirs(base_dir, "plt_harps_N2_*")
     else:
-        base_step, step_size, n_folders = 43800, 50, 6
+        base_step, step_size, n_folders = 2000, 50, 1
         base_step_harps, step_size_harps, n_folders_harps = 5800, 20, 30
 
         steps = [base_step - i * step_size for i in range(n_folders)]
 
-        plt_folders = [f"{base_dir}/plt_N2_{step}" for step in steps]
+        plt_folders = [f"{base_dir}/plt_N2_0{step}" for step in steps]
         steps_harps = [base_step_harps - i * step_size_harps for i in range(n_folders_harps)]
-        plt_folders_harps = [f"{base_dir}/plt_harps_N2_0{step}" for step in steps_harps]
+        plt_folders_harps = [f"{base_dir}/plt_harps_N2_{step}" for step in steps_harps]
 
     if plt_folders:
         generate_averaged_slice_plots(plt_folders, cfd_plots_config, axes=slice_axes, prefix="3d_slice_avg")

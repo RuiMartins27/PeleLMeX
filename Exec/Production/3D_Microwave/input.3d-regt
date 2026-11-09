@@ -9,11 +9,12 @@ peleLM.hi_bc = Inflow Inflow SlipWallIsotherm
 
 
 # -------------------------AMR CONTROL----------------------------
-amr.n_cell          = 32 32 512             # Level 0 number of cells in each direction
+amr.n_cell          = 32 32 512              # Level 0 number of cells in each direction
 amr.v               = 2                      # AMR verbose
 amr.max_level       = 1                      # maximum level number allowed
 amr.ref_ratio       = 2 2 2 2 2 2            # refinement ratio
-amr.regrid_int      = 35020                  # how often to regrid
+amr.regrid_int      = 20000                  # how often to regrid
+amr.regrid_on_restart = 1
 amr.n_error_buf     = 2 2 3 4                # number of buffer cells in error est
 amr.grid_eff        = 0.9                    # what constitutes an efficient grid
 amr.blocking_factor = 16 16 16               # block factor in grid generation (min box size)
@@ -23,7 +24,7 @@ amr.max_grid_size_z = 32 32
 
 # -------------------------- Temporal --------------------------------
 
-#amr.restart            = chk_N2_38000
+#amr.restart         = outdir/chk_N2_02000
 amr.max_step        = 40000
 amr.dt_change_max   = 1.05
 amr.stop_time       = 2.00
@@ -48,10 +49,13 @@ amr.derive_plot_vars    = avg_pressure mass_fractions mag_vel viscosity diffcoef
 
 # --------------------------- Problem -------------------------------
 prob.P_mean         = 101325
-prob.T_mean         = 293.15
+prob.T_mean         = 293.15    # 20 C
 prob.T_wall         = 293.15
-prob.tanflux_sccm   = 10000.0
+
+prob.tanflux_sccm   = 10000.0           
 prob.perpflux_sccm  = 10000.0
+prob.x_O2_main      = 0.00
+prob.x_O2_quench    = 1.00
 
 prob.power          = 600.0
 prob.power_shape    = 1                 # Static Power Shape (0: uniform cylinder;  1: parabolic)

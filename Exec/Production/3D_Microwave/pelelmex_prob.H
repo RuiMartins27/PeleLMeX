@@ -196,6 +196,8 @@ struct MyProbParm : public ProbParmDefault
   amrex::Real tanvmax = 0.0;
   amrex::Real vmean_tan = 0.0;
   amrex::Real vmean_rad = 0.0;
+  amrex::Real x_O2_main = 0.00;
+  amrex::Real x_O2_quench = 1.00;
   amrex::Real R = 0.45;
   amrex::Real rtrans = 0.5;
   amrex::Real ztan = 0.0;
@@ -328,7 +330,7 @@ struct MyProblemSpecificFunctions : public DefaultProblemSpecificFunctions
 
     state(i, j, k, TEMP) = prob_parm.T_mean;
     amrex::Real P_cgs = prob_parm.P_mean * 10.0;
-    massfrac[O2_ID]  = 0.0;
+    massfrac[O2_ID]  = prob_parm.x_O2_main;
     massfrac[N2_ID]  = 1.0 - massfrac[O2_ID];
 
     
@@ -370,10 +372,10 @@ struct MyProblemSpecificFunctions : public DefaultProblemSpecificFunctions
   amrex::Real X_quench[NUM_SPECIES] = {0.0};
   amrex::Real Y_quench[NUM_SPECIES] = {0.0};
 
-  Y_main[O2_ID] = 0.0;
+  Y_main[O2_ID] = prob_parm.x_O2_main;
   Y_main[N2_ID] = 1.0 - Y_main[O2_ID];
 
-  X_quench[O2_ID] = 1.0;
+  X_quench[O2_ID] = prob_parm.x_O2_quench;
   X_quench[N2_ID] = 1.0 - X_quench[O2_ID];
   eos.X2Y(X_quench, Y_quench ); 
   
